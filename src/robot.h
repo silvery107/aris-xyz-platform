@@ -6,10 +6,23 @@
 
 namespace robot
 {
-static double zero_pos[3]; // zero positions
+double ZERO_ANGLE[3]; // zero angles
 
-static void set_zero_angle(double* pos);
-static double * get_zero_angle();
+void set_zero_angle(double* pos);
+// static double * get_zero_angle();
+
+class Place : public aris::core::CloneObject<Place, aris::plan::Plan>
+{
+  public:
+    auto virtual prepareNrt() -> void;
+    auto virtual executeRT() -> int;
+    auto virtual collectNrt() -> void;
+
+    explicit Place(const std::string &name = "pick_place");
+
+  private:
+    double len;
+};
 
 class Pt1 : public aris::core::CloneObject<Pt1, aris::plan::Plan>
 {
@@ -115,14 +128,27 @@ class MoveA : public aris::core::CloneObject<MoveA, aris::plan::Plan>
     double len;
 };
 
-class MoveZ : public aris::core::CloneObject<MoveZ, aris::plan::Plan>
+class DropZ : public aris::core::CloneObject<DropZ, aris::plan::Plan>
 {
   public:
     auto virtual prepareNrt() -> void;
     auto virtual executeRT() -> int;
     auto virtual collectNrt() -> void;
 
-    explicit MoveZ(const std::string &name = "move_z");
+    explicit DropZ(const std::string &name = "drop_z");
+    
+  private:
+    double len;
+};
+
+class ZeroZ : public aris::core::CloneObject<ZeroZ, aris::plan::Plan>
+{
+  public:
+    auto virtual prepareNrt() -> void;
+    auto virtual executeRT() -> int;
+    auto virtual collectNrt() -> void;
+
+    explicit ZeroZ(const std::string &name = "zero_z");
     
   private:
     double len;

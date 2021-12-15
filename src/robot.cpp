@@ -13,21 +13,27 @@ using namespace aris::plan;
 const double PI = aris::PI;
 const double C_A = 5;
 const double C_V = 2;
-const double MOV_LEN = 10.0;
+const double MOV_LEN = 10;
+const double Z_ZERO = 100;
+const double Z_DROP = -75;
 const double POINT_1[2] = {-50, -25}; // (x,y)
 const double POINT_2[2] = { 50, -25};
 const double POINT_3[2] = {-50, -75};
 const double POINT_4[2] = { 50, -75};
+const double POINT_END[2] = {50, 0};
 const int X = 0;
 const int Y = 2;
 const int Z = 1;
 
 /*
-
+_________
+|   |   |
+|  END  |
+|   |   |
 |_(0,0)_|
 | 1 | 2 |
 | 3 | 4 |
-
+---------
 x ^
   |__> y
 
@@ -36,13 +42,69 @@ x ^
 namespace robot
 {
 
-static void set_zero_angle(double* pos){
+void set_zero_angle(double* pos){
     for(int idx=0; idx<3; ++idx)
-        zero_pos[idx] = pos[idx];
+        ZERO_ANGLE[idx] = pos[idx];
 }
-static double* get_zero_angle(){
-    return zero_pos;
+// static double* get_zero_angle(){
+//     return ZERO_ANGLE;
+// }
+
+//* POINTEND ////////////////////////////////////////
+Place::Place(const std::string &name) //构造函数
+{
+    // ! Check if space command work
+    aris::core::fromXmlString(command(),
+       "<Command name=\" \">"
+        "	<Param name=\"len\" default=\"10\" abbreviation=\"n\"/>"
+        "</Command>");
 }
+auto Place::prepareNrt()->void
+{
+    len = doubleParam("len");
+    for(auto &m:motorOptions()) 
+        m = aris::plan::Plan::NOT_CHECK_ENABLE |
+            aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
+}
+auto Place::executeRT()->int //进入实时线程
+{
+    static double begin_angle[3];
+    double angle;
+    double x_pos, y_pos;
+    double totaltime;
+    int idx;
+
+    if(count()==1){
+        begin_angle[0] = controller()->motionPool()[X].actualPos();
+        begin_angle[1] = controller()->motionPool()[Y].actualPos();
+        begin_angle[2] = controller()->motionPool()[Z].actualPos();
+    }
+
+    x_pos = -(ZERO_ANGLE[0]*36.0/PI - POINT_END[0]);
+    y_pos = -(ZERO_ANGLE[1]*36.0/PI - POINT_END[1]);
+    
+    TCurve s1(C_A, C_V); // s(a,v)
+    s1.getCurveParam();
+    totaltime = s1.getTc()*1000*3;
+
+    if(count()<=s1.getTc()*1000){ // 上升夹爪
+        angle = begin_angle[2] + Z_DROP/36.0*PI * s1.getTCurve(count());
+        controller()->motionPool()[Z].setTargetPos(angle);
+    }
+    else if(s1.getTc()*1000<count() && count()<=s1.getTc()*2000){ // 移动到 End Point
+        angle = begin_angle[0] + x_pos/36.0*PI * s1.getTCurve(count()-s1.getTc()*1000);
+        controller()->motionPool()[X].setTargetPos(angle);
+        angle = begin_angle[1] + y_pos/36.0*PI * s1.getTCurve(count()-s1.getTc()*1000);
+        controller()->motionPool()[Y].setTargetPos(angle);
+    }
+    else if(s1.getTc()*2000<count() && count()<=s1.getTc()*3000){ // 放下夹爪
+        angle = begin_angle[2] - Z_DROP/36.0*PI * s1.getTCurve(count()-s1.getTc()*2000);
+        controller()->motionPool()[Z].setTargetPos(angle);
+    }
+
+    return totaltime - count();
+}
+auto Place::collectNrt()->void {}
 
 //* POINT1 ////////////////////////////////////////
 Pt1::Pt1(const std::string &name) //构造函数
@@ -71,8 +133,8 @@ auto Pt1::executeRT()->int //进入实时线程
         begin_angle[1] = controller()->motionPool()[Y].actualPos();
     }
 
-    x_pos = -(begin_angle[0]*36.0/PI - POINT_1[0]);
-    y_pos = -(begin_angle[1]*36.0/PI - POINT_1[1]);
+    x_pos = -(ZERO_ANGLE[0]*36.0/PI - POINT_1[0]);
+    y_pos = -(ZERO_ANGLE[1]*36.0/PI - POINT_1[1]);
     
     TCurve s1(C_A, C_V); // s(a,v)
     s1.getCurveParam();
@@ -113,8 +175,8 @@ auto Pt2::executeRT()->int //进入实时线程
         begin_angle[1] = controller()->motionPool()[Y].actualPos();
     }
 
-    x_pos = -(begin_angle[0]*36.0/PI - POINT_2[0]);
-    y_pos = -(begin_angle[1]*36.0/PI - POINT_2[1]);
+    x_pos = -(ZERO_ANGLE[0]*36.0/PI - POINT_2[0]);
+    y_pos = -(ZERO_ANGLE[1]*36.0/PI - POINT_2[1]);
     
     TCurve s1(C_A, C_V); // s(a,v)
     s1.getCurveParam();
@@ -155,8 +217,8 @@ auto Pt3::executeRT()->int //进入实时线程
         begin_angle[1] = controller()->motionPool()[Y].actualPos();
     }
 
-    x_pos = -(begin_angle[0]*36.0/PI - POINT_3[0]);
-    y_pos = -(begin_angle[1]*36.0/PI - POINT_3[1]);
+    x_pos = -(ZERO_ANGLE[0]*36.0/PI - POINT_3[0]);
+    y_pos = -(ZERO_ANGLE[1]*36.0/PI - POINT_3[1]);
     
     TCurve s1(C_A, C_V); // s(a,v)
     s1.getCurveParam();
@@ -197,8 +259,8 @@ auto Pt4::executeRT()->int //进入实时线程
         begin_angle[1] = controller()->motionPool()[Y].actualPos();
     }
 
-    x_pos = -(begin_angle[0]*36.0/PI - POINT_4[0]);
-    y_pos = -(begin_angle[1]*36.0/PI - POINT_4[1]);
+    x_pos = -(ZERO_ANGLE[0]*36.0/PI - POINT_4[0]);
+    y_pos = -(ZERO_ANGLE[1]*36.0/PI - POINT_4[1]);
     
     TCurve s1(C_A, C_V); // s(a,v)
     s1.getCurveParam();
@@ -344,23 +406,22 @@ auto MoveA::executeRT()->int //进入实时线程
 }
 auto MoveA::collectNrt()->void {}
 
-//* MOVEZ ////////////////////////////////////////
-MoveZ::MoveZ(const std::string &name) //构造函数
+//* DROPZ ////////////////////////////////////////
+DropZ::DropZ(const std::string &name) //构造函数
 {
-    //! change this to <space> if work
     aris::core::fromXmlString(command(),
        "<Command name=\"f\">"
         "	<Param name=\"len\" default=\"10\" abbreviation=\"n\"/>"
         "</Command>");
 }
-auto MoveZ::prepareNrt()->void
+auto DropZ::prepareNrt()->void
 {
     len = doubleParam("len");
     for(auto &m:motorOptions()) 
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto MoveZ::executeRT()->int //进入实时线程
+auto DropZ::executeRT()->int //进入实时线程
 {
     static double begin_angle;
 
@@ -370,13 +431,52 @@ auto MoveZ::executeRT()->int //进入实时线程
 
     TCurve s1(C_A, C_V); //s1(a,v)
     s1.getCurveParam(); // 计算曲线参数
-    double angle0 = begin_angle - MOV_LEN/36.0*PI * s1.getTCurve(count()); // 返回count时刻的角度
+    double angle = begin_angle - Z_DROP/36.0*PI * s1.getTCurve(count()); // 返回count时刻的角度
 
-    controller()->motionPool()[Z].setTargetPos(angle0);
+    controller()->motionPool()[Z].setTargetPos(angle);
 
     return s1.getTc() * 1000 - count();
 }
-auto MoveZ::collectNrt()->void {}
+auto DropZ::collectNrt()->void {}
+
+//* ZEROZ ////////////////////////////////////////
+ZeroZ::ZeroZ(const std::string &name) //构造函数
+{
+    aris::core::fromXmlString(command(),
+       "<Command name=\"c\">"
+        "	<Param name=\"len\" default=\"10\" abbreviation=\"n\"/>"
+        "</Command>");
+}
+auto ZeroZ::prepareNrt()->void
+{
+    len = doubleParam("len");
+    for(auto &m:motorOptions()) 
+        m = aris::plan::Plan::NOT_CHECK_ENABLE |
+            aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
+}
+auto ZeroZ::executeRT()->int //进入实时线程
+{
+    static double begin_angle[3];
+
+    if(count()==1){
+        begin_angle[0] = controller()->motionPool()[X].actualPos();
+        begin_angle[1] = controller()->motionPool()[Y].actualPos();
+        begin_angle[2] = controller()->motionPool()[Z].actualPos();
+    }
+
+
+    TCurve s1(C_A, C_V); //s1(a,v)
+    s1.getCurveParam(); // 计算曲线参数
+    double angle = begin_angle[2] - Z_ZERO/36.0*PI * s1.getTCurve(count());
+
+    begin_angle[2] = angle;
+    set_zero_angle(begin_angle);
+
+    controller()->motionPool()[Z].setTargetPos(angle);
+
+    return s1.getTc() * 1000 - count();
+}
+auto ZeroZ::collectNrt()->void {}
 
 //* My Drive //////////////////////////////////////////////
 MyDrive::MyDrive(const std::string &name) //构造函数
@@ -427,7 +527,7 @@ auto MyDrive::executeRT() -> int{
     }
 
     if(reset){
-        temp_angle = get_zero_angle();
+        temp_angle = ZERO_ANGLE;
         x_pos = -(cur_angle[0] - temp_angle[0])*36.0/PI;
         y_pos = -(cur_angle[1] - temp_angle[1])*36.0/PI;
         z_pos = -(cur_angle[2] - temp_angle[2])*36.0/PI;
@@ -740,7 +840,7 @@ auto createPlanMotor()->std::unique_ptr<aris::plan::PlanRoot>
     plan_root->planPool().add<MoveS>();
     plan_root->planPool().add<MoveD>();
     plan_root->planPool().add<MoveA>();
-    plan_root->planPool().add<MoveZ>();
+    plan_root->planPool().add<ZeroZ>();
     plan_root->planPool().add<Pt1>();
     plan_root->planPool().add<Pt2>();
     plan_root->planPool().add<Pt3>();
