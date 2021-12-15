@@ -128,6 +128,19 @@ class MoveA : public aris::core::CloneObject<MoveA, aris::plan::Plan>
     double len;
 };
 
+class ReturnZ : public aris::core::CloneObject<ReturnZ, aris::plan::Plan>
+{
+  public:
+    auto virtual prepareNrt() -> void;
+    auto virtual executeRT() -> int;
+    auto virtual collectNrt() -> void;
+
+    explicit ReturnZ(const std::string &name = "zero_z");
+    
+  private:
+    double len;
+};
+
 class DropZ : public aris::core::CloneObject<DropZ, aris::plan::Plan>
 {
   public:
