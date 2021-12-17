@@ -1,4 +1,4 @@
-﻿#ifndef ROBOT_H_
+#ifndef ROBOT_H_
 #define ROBOT_H_
 
 #include <aris.hpp>
@@ -6,7 +6,8 @@
 
 namespace robot
 {
-double ZERO_ANGLE[3]; // zero angles
+
+static double __ZERO_ANGLE[3]; // zero angles
 
 void set_zero_angle(double* pos);
 // static double * get_zero_angle();
@@ -183,19 +184,6 @@ class MyDrive : public aris::core::CloneObject<MyDrive, aris::plan::Plan>
     int32_t draw_rect;
 };
 
-class TcurveDrive : public aris::core::CloneObject<TcurveDrive, aris::plan::Plan>
-{
-  public:
-    auto virtual prepareNrt() -> void;
-    auto virtual executeRT() -> int;
-    auto virtual collectNrt() -> void;
-
-    virtual ~TcurveDrive();
-    explicit TcurveDrive(const std::string &name = "motor_drive");
-
-  private:
-    double dir_;
-};
 
 class MoveJS : public aris::core::CloneObject<MoveJS, aris::plan::Plan>
 {
