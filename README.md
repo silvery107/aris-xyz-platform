@@ -27,3 +27,10 @@ x ^
   |__> y
 
 ```
+
+## TODO
+- [x] `WASD` command test passed
+- [x] `F` command test passed
+- [ ] `1,2,3,4` command test failed
+- [ ] `C` command test failed
+- [ ] `R` command test failed
