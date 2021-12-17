@@ -9,8 +9,8 @@ namespace robot
 
 static double __ZERO_ANGLE[3]; // zero angles
 
-void set_zero_angle(double* pos);
-// static double * get_zero_angle();
+static void set_zero_angle(double* pos);
+static double * get_zero_angle();
 
 class Place : public aris::core::CloneObject<Place, aris::plan::Plan>
 {
@@ -77,6 +77,45 @@ class Pt4 : public aris::core::CloneObject<Pt4, aris::plan::Plan>
     double len;
 };
 
+class ReturnZ : public aris::core::CloneObject<ReturnZ, aris::plan::Plan>
+{
+  public:
+    auto virtual prepareNrt() -> void;
+    auto virtual executeRT() -> int;
+    auto virtual collectNrt() -> void;
+
+    explicit ReturnZ(const std::string &name = "return_z");
+    
+  private:
+    double len;
+};
+
+class ZeroZ : public aris::core::CloneObject<ZeroZ, aris::plan::Plan>
+{
+  public:
+    auto virtual prepareNrt() -> void;
+    auto virtual executeRT() -> int;
+    auto virtual collectNrt() -> void;
+
+    explicit ZeroZ(const std::string &name = "zero_z");
+    
+  private:
+    double len;
+};
+
+class DropZ : public aris::core::CloneObject<DropZ, aris::plan::Plan>
+{
+  public:
+    auto virtual prepareNrt() -> void;
+    auto virtual executeRT() -> int;
+    auto virtual collectNrt() -> void;
+
+    explicit DropZ(const std::string &name = "drop_z");
+    
+  private:
+    double len;
+};
+
 class MoveW : public aris::core::CloneObject<MoveW, aris::plan::Plan>
 {
   public:
@@ -129,45 +168,6 @@ class MoveA : public aris::core::CloneObject<MoveA, aris::plan::Plan>
     double len;
 };
 
-class ReturnZ : public aris::core::CloneObject<ReturnZ, aris::plan::Plan>
-{
-  public:
-    auto virtual prepareNrt() -> void;
-    auto virtual executeRT() -> int;
-    auto virtual collectNrt() -> void;
-
-    explicit ReturnZ(const std::string &name = "zero_z");
-    
-  private:
-    double len;
-};
-
-class DropZ : public aris::core::CloneObject<DropZ, aris::plan::Plan>
-{
-  public:
-    auto virtual prepareNrt() -> void;
-    auto virtual executeRT() -> int;
-    auto virtual collectNrt() -> void;
-
-    explicit DropZ(const std::string &name = "drop_z");
-    
-  private:
-    double len;
-};
-
-class ZeroZ : public aris::core::CloneObject<ZeroZ, aris::plan::Plan>
-{
-  public:
-    auto virtual prepareNrt() -> void;
-    auto virtual executeRT() -> int;
-    auto virtual collectNrt() -> void;
-
-    explicit ZeroZ(const std::string &name = "zero_z");
-    
-  private:
-    double len;
-};
-
 class MyDrive : public aris::core::CloneObject<MyDrive, aris::plan::Plan>
 {
   public:
@@ -183,7 +183,6 @@ class MyDrive : public aris::core::CloneObject<MyDrive, aris::plan::Plan>
     int32_t set_zero; // set current positions as zero positions
     int32_t draw_rect;
 };
-
 
 class MoveJS : public aris::core::CloneObject<MoveJS, aris::plan::Plan>
 {
