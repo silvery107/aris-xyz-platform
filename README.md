@@ -3,14 +3,15 @@
 
 ## Commands
 
-| CMD | Description | Test | 
-|:-:|:-|:-:|
-|W, A, S, D|Move a small distance in `XY`| Pass |
-|1, 2, 3, 4|Move `XY` to predefined grid points| Fail |
-|C|Lift gripper to initial `Z` position| Fail |
-|F|Drop down gripper in `Z`| Pass |
-|R|Return gripper to zero `XYZ` position| Fail |
-|E|Pick and place all in one| Fail |
+| Key        | Description                          | Test |
+|:----------:|:-------------------------------------|:----:|
+| W, A, S, D | Move a small distance in `XY`        | Pass |
+| 1, 2, 3, 4 | Move `XY` to predefined grid points  | Fail |
+| C          | Lift gripper to initial `Z` position | Fail |
+| F          | Drop down gripper in `Z`             | Pass |
+| R          | Return gripper to zero `XYZ` position| Fail |
+| R          | Pick and place all in one            | Fail |
+
 
 ## Conventions
 

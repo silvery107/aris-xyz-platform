@@ -12,19 +12,21 @@ using namespace aris::plan;
 
 const double PI = aris::PI;
 
-const double C_A = 5; // curve acceleration
-const double C_V = 2; // curve velocity
-const double MOV_LEN = 10; // WASD move distance in cm
-const double Z_ZERO = 100; // initial Z height
-const double Z_DROP = -75; // drop Z distance
-const double POINT_1[2] = {-50, -25}; // (x,y)
+const double C_A = 5;       // curve acceleration
+const double C_V = 2;       // curve velocity
+const double MOV_LEN = 10;  // WASD move distance in cm
+const double Z_ZERO = 100;  // initial Z height
+const double Z_DROP = -75;  // drop Z distance
+
+const double POINT_1[2] = {-50, -25};   // (x,y)
 const double POINT_2[2] = { 50, -25};
 const double POINT_3[2] = {-50, -75};
 const double POINT_4[2] = { 50, -75};
 const double POINT_END[2] = {50, 0};
+
 const int X = 0; // X motor index
-const int Y = 2;
-const int Z = 1;
+const int Y = 2; // Y motor index
+const int Z = 1; // Z motor index
 
 /*
 _________
@@ -37,6 +39,9 @@ _________
 ---------
 x ^
   |__> y
+
+Example:
+
 
 */
 
