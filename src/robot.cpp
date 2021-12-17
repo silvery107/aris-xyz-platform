@@ -1,4 +1,4 @@
-﻿#include <algorithm>
+#include <algorithm>
 #include <array>
 #include <stdlib.h>
 #include <string>
@@ -41,10 +41,9 @@ x ^
 
 namespace robot
 {
-
 void set_zero_angle(double* pos){
     for(int idx=0; idx<3; ++idx)
-        ZERO_ANGLE[idx] = pos[idx];
+        __ZERO_ANGLE[idx] = pos[idx];
 }
 // static double* get_zero_angle(){
 //     return ZERO_ANGLE;
@@ -81,8 +80,8 @@ auto Place::executeRT()->int //进入实时线程
     }
 
     // ! double check here
-    x_pos = -(begin_angle[0]-ZERO_ANGLE[0])*36.0/PI + POINT_END[0];
-    y_pos = -(begin_angle[1]-ZERO_ANGLE[1])*36.0/PI + POINT_END[1];
+    x_pos = -(begin_angle[0]-__ZERO_ANGLE[0])*36.0/PI + POINT_END[0];
+    y_pos = -(begin_angle[1]-__ZERO_ANGLE[1])*36.0/PI + POINT_END[1];
     
     TCurve s1(C_A, C_V); // s(a,v)
     s1.getCurveParam();
@@ -135,8 +134,8 @@ auto Pt1::executeRT()->int //进入实时线程
     }
 
     // ! double check here
-    x_pos = -(begin_angle[0]-ZERO_ANGLE[0])*36.0/PI + POINT_1[0];
-    y_pos = -(begin_angle[1]-ZERO_ANGLE[1])*36.0/PI + POINT_1[1];
+    x_pos = -(begin_angle[0]-__ZERO_ANGLE[0])*36.0/PI + POINT_1[0];
+    y_pos = -(begin_angle[1]-__ZERO_ANGLE[1])*36.0/PI + POINT_1[1];
     
     TCurve s1(C_A, C_V); // s(a,v)
     s1.getCurveParam();
@@ -178,8 +177,8 @@ auto Pt2::executeRT()->int //进入实时线程
     }
 
     // ! double check here
-    x_pos = -(begin_angle[0]-ZERO_ANGLE[0])*36.0/PI + POINT_2[0];
-    y_pos = -(begin_angle[1]-ZERO_ANGLE[1])*36.0/PI + POINT_2[1];
+    x_pos = -(begin_angle[0]-__ZERO_ANGLE[0])*36.0/PI + POINT_2[0];
+    y_pos = -(begin_angle[1]-__ZERO_ANGLE[1])*36.0/PI + POINT_2[1];
     
     TCurve s1(C_A, C_V); // s(a,v)
     s1.getCurveParam();
@@ -221,8 +220,8 @@ auto Pt3::executeRT()->int //进入实时线程
     }
 
     // ! double check here
-    x_pos = -(begin_angle[0]-ZERO_ANGLE[0])*36.0/PI + POINT_3[0];
-    y_pos = -(begin_angle[1]-ZERO_ANGLE[1])*36.0/PI + POINT_3[1];
+    x_pos = -(begin_angle[0]-__ZERO_ANGLE[0])*36.0/PI + POINT_3[0];
+    y_pos = -(begin_angle[1]-__ZERO_ANGLE[1])*36.0/PI + POINT_3[1];
     
     TCurve s1(C_A, C_V); // s(a,v)
     s1.getCurveParam();
@@ -264,8 +263,8 @@ auto Pt4::executeRT()->int //进入实时线程
     }
 
     // ! double check here
-    x_pos = -(begin_angle[0]-ZERO_ANGLE[0])*36.0/PI + POINT_4[0];
-    y_pos = -(begin_angle[1]-ZERO_ANGLE[1])*36.0/PI + POINT_4[1];
+    x_pos = -(begin_angle[0]-__ZERO_ANGLE[0])*36.0/PI + POINT_4[0];
+    y_pos = -(begin_angle[1]-__ZERO_ANGLE[1])*36.0/PI + POINT_4[1];
     
     TCurve s1(C_A, C_V); // s(a,v)
     s1.getCurveParam();
@@ -439,8 +438,8 @@ auto ReturnZ::executeRT()->int //进入实时线程
     }
 
     // ! double check here
-    x_pos = -(begin_angle[0] - ZERO_ANGLE[0])*36.0/PI;
-    y_pos = -(begin_angle[1] - ZERO_ANGLE[1])*36.0/PI;
+    x_pos = -(begin_angle[0] - __ZERO_ANGLE[0])*36.0/PI;
+    y_pos = -(begin_angle[1] - __ZERO_ANGLE[1])*36.0/PI;
 
     TCurve s1(C_A, C_V); //s1(a,v)
     s1.getCurveParam(); // 计算曲线参数
@@ -582,7 +581,7 @@ auto MyDrive::executeRT() -> int{
     }
 
     if(reset){
-        temp_angle = ZERO_ANGLE;
+        temp_angle = __ZERO_ANGLE;
         x_pos = -(cur_angle[0] - temp_angle[0])*36.0/PI;
         y_pos = -(cur_angle[1] - temp_angle[1])*36.0/PI;
         z_pos = -(cur_angle[2] - temp_angle[2])*36.0/PI;
@@ -845,7 +844,7 @@ auto createPlanMotor()->std::unique_ptr<aris::plan::PlanRoot>
     plan_root->planPool().add<aris::plan::Stop>();
 
     //自己写的命令
-    plan_root->planPool().add<TcurveDrive>();
+//    plan_root->planPool().add<TcurveDrive>();
     plan_root->planPool().add<MyDrive>();
     plan_root->planPool().add<MoveJS>();
     plan_root->planPool().add<MoveW>();
