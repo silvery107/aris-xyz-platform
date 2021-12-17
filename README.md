@@ -34,3 +34,4 @@ x ^
 - [ ] `1,2,3,4` command test failed
 - [ ] `C` command test failed
 - [ ] `R` command test failed
+- [ ] `<space>` command is not allowed
