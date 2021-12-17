@@ -3,14 +3,14 @@
 
 ## Commands
 
-| CMD | Description |
-|:-:|:-|
-|W, A, S, D|Move a small distance in `XY`|
-|1, 2, 3, 4|Move `XY` to predefined grid points|
-|C|Lift gripper to initial `Z` position|
-|F|Drop down gripper in `Z`|
-|R|Return gripper to zero `XYZ` position|
-|\<space\>|Pick and place all in one|
+| CMD | Description | Test | Note |
+|:-:|:-|:-:|-|
+|W, A, S, D|Move a small distance in `XY`| Pass |
+|1, 2, 3, 4|Move `XY` to predefined grid points| Fail |
+|C|Lift gripper to initial `Z` position| Fail |
+|F|Drop down gripper in `Z`| Pass |
+|R|Return gripper to zero `XYZ` position| Fail |
+|\<space\>|Pick and place all in one| Fail |`<space>` is not allowed|
 
 ## Conventions
 
@@ -27,11 +27,3 @@ x ^
   |__> y
 
 ```
-
-## TODO
-- [x] `WASD` command test passed
-- [x] `F` command test passed
-- [ ] `1,2,3,4` command test failed
-- [ ] `C` command test failed
-- [ ] `R` command test failed
-- [ ] `<space>` command is not allowed
