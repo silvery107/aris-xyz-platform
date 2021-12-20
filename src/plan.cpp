@@ -10,10 +10,7 @@ using namespace std;
 //输出：当前时刻s的值
 auto TCurve::getTCurve(int count)->double
 {
-	//double ta = p.ta_;
-	//double a = p.a_;
-	//double v = p.v_;
-	//double T_c = p.Tc_;
+
 	int t = count + 1;
 	double s = 0;
 
@@ -52,24 +49,16 @@ auto TCurve::getCurveParam()->void
 {
 	if (v_ * v_ / a_ <= 1)
 	{
-		this->Tc_ = (a_ + v_ * v_) / v_ / a_;
-		this->a_ = a_;
-		this->v_ = v_;
+        this->Tc_ = ((a_ + v_ * v_) / v_ / a_);
+        // this->a_ = a_;
+        // this->v_ = v_;
 	}
 	else
 	{
         //按速度计算，此时给定的加速度不起作用
 		this->Tc_ = 2.0 / v_;
 		this->a_ = v_ * v_;
-		this->v_ = v_;
+        // this->v_ = v_;
 	}
 	this->ta_ = v_ / a_;
 }
-
-
-
-
-
-
-
-
