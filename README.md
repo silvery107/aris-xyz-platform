@@ -30,9 +30,12 @@ x ^
 ```
 ## Example Command Flow
 ```
-    c           // lift Z to initial pos and record this XYZ pos as (0,0)
-    1/2/3/4     // move gripper to predefined point
-    f           // drop Z
-    e           // pick and place
-    r           // return to (0,0)
+c           // lift Z to initial pos and record this XYZ pos as (0,0)
+1/2/3/4     // move gripper to predefined point
+f           // drop Z
+e           // pick and place
+r           // return to (0,0)
 ```
+
+# Todo
+重写梯形规划
