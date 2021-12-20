@@ -7,11 +7,6 @@
 namespace robot
 {
 
-static double __ZERO_ANGLE[3]; // zero angles
-
-static void set_zero_angle(double* pos);
-static double * get_zero_angle();
-
 class Place : public aris::core::CloneObject<Place, aris::plan::Plan>
 {
   public:
