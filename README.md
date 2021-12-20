@@ -1,6 +1,5 @@
 # Aris XYZ Platform
 
-
 ## Commands
 
 | Key        | Description                          | Test |
@@ -11,7 +10,6 @@
 | F          | Drop down gripper in `Z`             | Pass |
 | E          | Pick and place all in one            | Pass |
 | R          | Return gripper to zero `XYZ` position| Pass |
-
 
 ## Conventions
 
@@ -28,14 +26,15 @@ x ^
   |__> y
 
 ```
+
 ## Example Command Flow
-```
-c           // lift Z to initial pos and record this XYZ pos as (0,0)
-1/2/3/4     // move gripper to predefined point
-f           // drop Z
-e           // pick and place
-r           // return to (0,0)
+
+```bash
+c               # lift Z to initial pos and record this XYZ pos as (0,0)
+1 / 2 / 3 / 4   # move gripper to predefined point
+w / a / s / d   # fine tune XY position
+f               # drop Z
+e               # pick and place
+r               # return to (0,0)
 ```
 
-# Todo
-重写梯形规划
