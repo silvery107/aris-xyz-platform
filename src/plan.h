@@ -13,20 +13,17 @@
 class TCurve
 {
 private:
-	double Tc_;
+    double Tc_;
 	double v_;
 	double a_;
 	double ta_;
 
 public:
-	auto getTCurve(int count)->double;
-	auto getCurveParam()->void;
-	auto getTc()->double { return Tc_; };
+    auto getTCurve(int count) -> double;
+    auto getCurveParam() -> void;
+    auto getTc() -> double { return Tc_; }
 	TCurve(double a, double v) { a_ = a; v_ = v; }
 	~TCurve() {}
 };
 
 #endif
-
-
-
