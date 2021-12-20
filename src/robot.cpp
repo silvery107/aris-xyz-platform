@@ -1,4 +1,4 @@
-﻿#include <algorithm>
+#include <algorithm>
 #include <array>
 #include <stdlib.h>
 #include <string>
@@ -12,21 +12,26 @@ using namespace aris::plan;
 
 const double PI = aris::PI;
 
-const double C_A = 5;       // curve acceleration
-const double C_V = 2;       // curve velocity
+const double C_A = 5;       // command acceleration
+const double C_V = 2;       // command velocity
+const double M_A = 5;       // move acc
+const double M_V = 5;       // move vel
 const double MOV_LEN = 10;  // WASD move distance in cm
-const double Z_ZERO = 100;  // initial Z height
-const double Z_DROP = -75;  // drop Z distance
+const double Z_ZERO = 150;  // initial Z height
+const double Z_DROP = -50;  // drop Z distance
 
-const double POINT_1[2] = {-50, -25};   // (x,y)
-const double POINT_2[2] = { 50, -25};
-const double POINT_3[2] = {-50, -75};
-const double POINT_4[2] = { 50, -75};
-const double POINT_END[2] = {50, 0};
+const double POINT_1[2] = { -150, -100};   // (x,y) distance >= 300 will be unsafe !!!
+const double POINT_2[2] = { -150,  100};
+const double POINT_3[2] = { -300, -100};
+const double POINT_4[2] = { -300,  100};
+const double POINT_END[2] = {0, 0};
+const double Z_THR = 1;
 
 const int X = 0; // X motor index
 const int Y = 2; // Y motor index
 const int Z = 1; // Z motor index
+
+static double __ZERO_ANGLE[3]; // zero angles
 
 /*
 _________
@@ -40,20 +45,87 @@ _________
 x ^
   |__> y
 
-Example:
+Example Command Flow:
 
+    c           // lift Z to initial pos and record this XYZ pos as (0,0)
+    1/2/3/4     // move gripper to predefined point
+    f           // drop Z
+    e           // pick and place
+    r           // return to (0,0)
 
 */
 
 namespace robot
 {
 static void set_zero_angle(double* pos){
-    for(int idx=0; idx<3; ++idx)
+    for(int idx=0; idx<3; idx++)
         __ZERO_ANGLE[idx] = pos[idx];
 }
 static double* get_zero_angle(){
     return __ZERO_ANGLE;
 }
+//* RETURNZ ////////////////////////////////////////
+ReturnZ::ReturnZ(const std::string &name) //构造函数
+{
+    aris::core::fromXmlString(command(),
+       "<Command name=\"r\">"
+        "	<Param name=\"len\" default=\"10\" abbreviation=\"n\"/>"
+        "</Command>");
+}
+auto ReturnZ::prepareNrt()->void
+{
+    len = doubleParam("len");
+    for(auto &m:motorOptions())
+        m = aris::plan::Plan::NOT_CHECK_ENABLE |
+            aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
+}
+auto ReturnZ::executeRT()->int //进入实时线程
+{
+    static double begin_angle[3];
+    double angle, x_pos, y_pos, z_pos;
+    double totaltime;
+
+    if(count()==1){
+        begin_angle[0] = controller()->motionPool()[X].actualPos();
+        begin_angle[1] = controller()->motionPool()[Y].actualPos();
+        begin_angle[2] = controller()->motionPool()[Z].actualPos();
+    }
+
+    // ! double check here
+    x_pos = -(begin_angle[0] - __ZERO_ANGLE[0])*36.0/PI;
+    y_pos = -(begin_angle[1] - __ZERO_ANGLE[1])*36.0/PI;
+    z_pos = -(begin_angle[2] - __ZERO_ANGLE[2])*36.0/PI;
+
+    TCurve s1(C_A, C_V); //s1(a,v)
+    s1.getCurveParam(); // 计算曲线参数
+
+    if (z_pos<Z_THR && z_pos>-Z_THR){ // Z pos near zero
+        totaltime = s1.getTc()*1000;
+
+        angle = begin_angle[0] + x_pos/36.0*PI * s1.getTCurve(count());
+        controller()->motionPool()[X].setTargetPos(angle);
+        angle = begin_angle[1] + y_pos/36.0*PI * s1.getTCurve(count());
+        controller()->motionPool()[Y].setTargetPos(angle);
+
+    }else{
+        totaltime = s1.getTc()*2000;
+
+        if(count() <= s1.getTc()*1000){ // 抬升夹爪
+            angle = begin_angle[2] + z_pos/36.0*PI * s1.getTCurve(count());
+            controller()->motionPool()[Z].setTargetPos(angle);
+
+        }else if(s1.getTc()*1000 < count() && count() <= s1.getTc()*2000){ // 夹爪回(0, 0)
+            angle = begin_angle[0] + x_pos/36.0*PI * s1.getTCurve(count()-s1.getTc()*1000);
+            controller()->motionPool()[X].setTargetPos(angle);
+            angle = begin_angle[1] + y_pos/36.0*PI * s1.getTCurve(count()-s1.getTc()*1000);
+            controller()->motionPool()[Y].setTargetPos(angle);
+        }
+
+    }
+
+    return totaltime - count();
+}
+auto ReturnZ::collectNrt()->void {}
 
 //* POINTEND //////////////////////////////////////
 Place::Place(const std::string &name) //构造函数
@@ -75,8 +147,7 @@ auto Place::executeRT()->int //进入实时线程
     static double begin_angle[3];
     double angle;
     double x_pos, y_pos;
-    double totaltime;
-    int idx;
+    int totaltime;
 
     if(count()==1){
         begin_angle[0] = controller()->motionPool()[X].actualPos();
@@ -90,19 +161,24 @@ auto Place::executeRT()->int //进入实时线程
     
     TCurve s1(C_A, C_V); // s(a,v)
     s1.getCurveParam();
-    totaltime = s1.getTc()*1000*3;
+    totaltime = int(s1.getTc()*1000*3);
 
-    if(count()<=s1.getTc()*1000){ // 上升夹爪
+    if(count() <= s1.getTc()*1000){ // 上升夹爪
         angle = begin_angle[2] + Z_DROP/36.0*PI * s1.getTCurve(count());
         controller()->motionPool()[Z].setTargetPos(angle);
+
+        if (count()==s1.getTc()*1000){ // record new begin_angle in Z
+            begin_angle[2] = angle;
+        }
     }
-    else if(s1.getTc()*1000<count() && count()<=s1.getTc()*2000){ // 移动到 End Point
+    else if(s1.getTc()*1000 < count() && count() <= s1.getTc()*2000){ // 移动到 End Point
         angle = begin_angle[0] + x_pos/36.0*PI * s1.getTCurve(count()-s1.getTc()*1000);
         controller()->motionPool()[X].setTargetPos(angle);
+
         angle = begin_angle[1] + y_pos/36.0*PI * s1.getTCurve(count()-s1.getTc()*1000);
         controller()->motionPool()[Y].setTargetPos(angle);
     }
-    else if(s1.getTc()*2000<count() && count()<=s1.getTc()*3000){ // 放下夹爪
+    else if(s1.getTc()*2000 < count() && count() <= s1.getTc()*3000){ // 放下夹爪
         angle = begin_angle[2] - Z_DROP/36.0*PI * s1.getTCurve(count()-s1.getTc()*2000);
         controller()->motionPool()[Z].setTargetPos(angle);
     }
@@ -283,55 +359,6 @@ auto Pt4::executeRT()->int //进入实时线程
 }
 auto Pt4::collectNrt()->void {}
 
-//* RETURNZ ////////////////////////////////////////
-ReturnZ::ReturnZ(const std::string &name) //构造函数
-{
-    aris::core::fromXmlString(command(),
-       "<Command name=\"r\">"
-        "	<Param name=\"len\" default=\"10\" abbreviation=\"n\"/>"
-        "</Command>");
-}
-auto ReturnZ::prepareNrt()->void
-{
-    len = doubleParam("len");
-    for(auto &m:motorOptions()) 
-        m = aris::plan::Plan::NOT_CHECK_ENABLE |
-            aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
-}
-auto ReturnZ::executeRT()->int //进入实时线程
-{
-    static double begin_angle[3];
-    double angle, x_pos, y_pos;
-    double totaltime;
-
-    if(count()==1){
-        begin_angle[0] = controller()->motionPool()[X].actualPos();
-        begin_angle[1] = controller()->motionPool()[Y].actualPos();
-        begin_angle[2] = controller()->motionPool()[Z].actualPos();
-    }
-
-    // ! double check here
-    x_pos = -(begin_angle[0] - __ZERO_ANGLE[0])*36.0/PI;
-    y_pos = -(begin_angle[1] - __ZERO_ANGLE[1])*36.0/PI;
-
-    TCurve s1(C_A, C_V); //s1(a,v)
-    s1.getCurveParam(); // 计算曲线参数
-
-    totaltime = s1.getTc()*2000;
-
-    if(count()<s1.getTc()*1000){ // 抬升夹爪
-        angle = begin_angle[2] + Z_DROP/36.0*PI * s1.getTCurve(count()); // 返回count时刻的角度
-        controller()->motionPool()[Z].setTargetPos(angle);
-    }else if(s1.getTc()*1000<count() && count()<=s1.getTc()*2000){ // 夹爪回(0, 0)
-        angle = begin_angle[0] + x_pos/36.0*PI * s1.getTCurve(count());
-        controller()->motionPool()[X].setTargetPos(angle);
-        angle = begin_angle[1] + y_pos/36.0*PI * s1.getTCurve(count());
-        controller()->motionPool()[Y].setTargetPos(angle);
-    }
-
-    return totaltime - count();
-}
-auto ReturnZ::collectNrt()->void {}
 
 //* ZEROZ ////////////////////////////////////////
 ZeroZ::ZeroZ(const std::string &name) //构造函数
@@ -351,7 +378,7 @@ auto ZeroZ::prepareNrt()->void
 auto ZeroZ::executeRT()->int //进入实时线程
 {
     static double begin_angle[3];
-
+    double totaletime;
     if(count()==1){
         begin_angle[0] = controller()->motionPool()[X].actualPos();
         begin_angle[1] = controller()->motionPool()[Y].actualPos();
@@ -361,14 +388,20 @@ auto ZeroZ::executeRT()->int //进入实时线程
 
     TCurve s1(C_A, C_V); //s1(a,v)
     s1.getCurveParam(); // 计算曲线参数
-    double angle = begin_angle[2] - Z_ZERO/36.0*PI * s1.getTCurve(count());
+    totaletime = s1.getTc()*1000;
 
-    begin_angle[2] = angle;
-    set_zero_angle(begin_angle);
+    // lift Z from 0 to Z_ZERO
+    double angle = begin_angle[2] - Z_ZERO/36.0*PI * s1.getTCurve(count());
 
     controller()->motionPool()[Z].setTargetPos(angle);
 
-    return s1.getTc() * 1000 - count();
+    // record the final Z pos as the __ZERO_ANGLE
+    if(count()==int(totaletime)){
+        begin_angle[2] = angle;
+        set_zero_angle(begin_angle);
+    }
+
+    return totaletime - count();
 }
 auto ZeroZ::collectNrt()->void {}
 
@@ -428,7 +461,7 @@ auto MoveW::executeRT()->int //进入实时线程
         begin_angle = controller()->motionPool()[X].actualPos();
     }
     
-    TCurve s1(C_A, C_V); //s1(a,v)
+    TCurve s1(M_A, M_V); //s1(a,v)
     s1.getCurveParam(); // 计算曲线参数
     double angle0 = begin_angle + MOV_LEN/36.0*PI * s1.getTCurve(count()); // 返回count时刻的角度
 
@@ -461,7 +494,7 @@ auto MoveS::executeRT()->int //进入实时线程
         begin_angle = controller()->motionPool()[X].actualPos();
     }
     
-    TCurve s1(C_A, C_V); //s1(a,v)
+    TCurve s1(M_A, M_V); //s1(a,v)
     s1.getCurveParam(); // 计算曲线参数
     double angle0 = begin_angle - MOV_LEN/36.0*PI * s1.getTCurve(count()); // 返回count时刻的角度
 
@@ -494,7 +527,7 @@ auto MoveD::executeRT()->int //进入实时线程
         begin_angle = controller()->motionPool()[Y].actualPos();
     }
 
-    TCurve s1(C_A, C_V); //s1(a,v)
+    TCurve s1(M_A, M_V); //s1(a,v)
     s1.getCurveParam(); // 计算曲线参数
     double angle0 = begin_angle + MOV_LEN/36.0*PI * s1.getTCurve(count()); // 返回count时刻的角度
 
@@ -527,7 +560,7 @@ auto MoveA::executeRT()->int //进入实时线程
         begin_angle = controller()->motionPool()[Y].actualPos();
     }
 
-    TCurve s1(C_A, C_V); //s1(a,v)
+    TCurve s1(M_A, M_V); //s1(a,v)
     s1.getCurveParam(); // 计算曲线参数
     double angle0 = begin_angle - MOV_LEN/36.0*PI * s1.getTCurve(count()); // 返回count时刻的角度
 
@@ -558,7 +591,7 @@ MyDrive::MyDrive(const std::string &name) //构造函数
 auto MyDrive::prepareNrt() -> void{
     x_pos = doubleParam("x_pos");
     y_pos = doubleParam("y_pos");
-    z_pos = doubleParam("z_pos");
+    z_pos = -doubleParam("z_pos");
     reset = int32Param("reset");
     set_zero = int32Param("set_zero");
 
@@ -574,8 +607,9 @@ auto MyDrive::executeRT() -> int{
     double totaltime;
 
     if(count()==1){
-        for(idx=0; idx<3; ++idx)
-            cur_angle[idx] = controller()->motionPool()[idx].actualPos();
+        cur_angle[0] = controller()->motionPool()[X].actualPos();
+        cur_angle[1] = controller()->motionPool()[Y].actualPos();
+        cur_angle[2] = controller()->motionPool()[Z].actualPos();
     }
 
     if(set_zero){
