@@ -10,7 +10,7 @@
 | C          | Lift gripper to initial `Z` position | Pass |
 | F          | Drop down gripper in `Z`             | Pass |
 | E          | Pick and place all in one            | Pass |
-| R          | Return gripper to zero `XYZ` position| Fail |
+| R          | Return gripper to zero `XYZ` position| Pass |
 
 
 ## Conventions
