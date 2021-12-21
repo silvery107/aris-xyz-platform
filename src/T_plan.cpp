@@ -60,15 +60,15 @@ public:
         this->T = t;
 
         if (t > 0) {
-            double v1 = 0.5 * (a_m * T + sqrt(a_m*a_m * T*T - 4 * a_m * S));
-            double v2 = 0.5 * (a_m * T - sqrt(a_m*a_m * T*T - 4 * a_m * S));
-            if (v1>0 && v2>0)
-                this->v_m = v1<v2 ? v1 : v2;
-            else if (v1<0 && v2>0)
+            double v1 = 0.5 * (a_m * T + sqrt(a_m * a_m * T * T - 4 * a_m * S));
+            double v2 = 0.5 * (a_m * T - sqrt(a_m * a_m * T * T - 4 * a_m * S));
+            if (v1 > 0 && v2 > 0)
+                this->v_m = v1 < v2 ? v1 : v2;
+            else if (v1 < 0 && v2 > 0)
                 this->v_m = v2;
             else // v1>0 && v2<0
                 this->v_m = v1;
-            
+
             this->Ta = v_m / a_m;
         }
     }
