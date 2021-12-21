@@ -1,5 +1,21 @@
 # Aris XYZ Platform
 
+## Introduction
+
+## Hardware
+
+- Step motors
+- 3-axis platform
+- Industrial Personal Computer
+- EtherCat communication
+
+## Trapezoidal Speed Planner
+
+- Optimal time trapezoidal planning
+- Given time trapezoidal planning
+- Trapezoidal to triangular velocity profile
+- Time synchronization for 3-axis platform
+
 ## Commands
 
 | Key        | Description                          | Test |
