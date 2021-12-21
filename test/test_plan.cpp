@@ -1,5 +1,5 @@
-#include "T_planner.cpp"
-#include "plan.cpp"
+#include "../src/T_planner.cpp"
+#include "../src/plan.cpp"
 #include <iostream>
 
 int main()
