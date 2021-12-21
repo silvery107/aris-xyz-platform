@@ -54,3 +54,7 @@ e               # pick and place
 r               # return to (0,0)
 ```
 
+## Dependencies
+
+- [Aris 1.5.0](https://github.com/py0330/aris)
+- EtherCat
