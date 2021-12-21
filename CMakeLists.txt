@@ -5,6 +5,7 @@ project(testmotor)
 # aris use c++ 17 standard
 set(CMAKE_CXX_STANDARD 17)
 
+
 # find aris
 if(UNIX)
 	add_definitions(-DUNIX)
@@ -16,7 +17,11 @@ endif(WIN32)
 include_directories(${aris_INCLUDE_DIRS})
 
 
-add_executable(testmotor src/main.cpp src/robot.cpp src/robot.h src/plan.cpp src/plan.h )
+include_directories("include")
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+add_executable(testmotor ${SOURCES})
+
+# add_executable(testmotor src/main.cpp src/robot.cpp src/robot.h src/plan.cpp src/plan.h )
 
 if(UNIX)
     target_link_libraries(testmotor ${aris_LIBRARIES} atomic)
