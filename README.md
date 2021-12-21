@@ -2,6 +2,8 @@
 
 ## Introduction
 
+TODO
+
 ## Hardware
 
 - Step motors
@@ -29,7 +31,6 @@ _________
 ---------
 x ^
   |__> y
-
 ```
 
 ## Commands
