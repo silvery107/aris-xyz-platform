@@ -16,17 +16,6 @@
 - Trapezoidal to triangular velocity profile
 - Time synchronization for 3-axis platform
 
-## Commands
-
-| Key        | Description                          | Test |
-|:----------:|:-------------------------------------|:----:|
-| W, A, S, D | Move a small distance in `XY`        | Pass |
-| 1, 2, 3, 4 | Move `XY` to predefined grid points  | Pass |
-| C          | Lift gripper to initial `Z` position | Pass |
-| F          | Drop down gripper in `Z`             | Pass |
-| E          | Pick and place all in one            | Pass |
-| R          | Return gripper to zero `XYZ` position| Pass |
-
 ## Conventions
 
 ```
@@ -42,6 +31,17 @@ x ^
   |__> y
 
 ```
+
+## Commands
+
+| Key        | Description                          | Test |
+|:----------:|:-------------------------------------|:----:|
+| W, A, S, D | Move a small distance in `XY`        | Pass |
+| 1, 2, 3, 4 | Move `XY` to predefined grid points  | Pass |
+| C          | Lift gripper to initial `Z` position | Pass |
+| F          | Drop down gripper in `Z`             | Pass |
+| E          | Pick and place all in one            | Pass |
+| R          | Return gripper to zero `XYZ` position| Pass |
 
 ## Example Command Flow
 
