@@ -44,8 +44,7 @@ x ^
 | E          | Pick and place all in one            | Pass |
 | R          | Return gripper to zero `XYZ` position| Pass |
 
-## Example Command Flow
-
+## Example
 ```bash
 c               # lift Z to initial pos and record this XYZ pos as (0,0)
 1 / 2 / 3 / 4   # move gripper to predefined point
