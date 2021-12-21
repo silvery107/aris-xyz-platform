@@ -1,77 +1,148 @@
+#include <algorithm>
 #include <cmath>
 
-class TPlan {
-private:
+struct TPlanData {
     double a_m;
     double v_m;
     double S;
     double T;
     double Ta;
     bool tri_or_trap; // true for tri, false for trap
+};
 
-public:
-    long getTc()
+class TPlan {
+private:
+    double A_max;
+    double V_max;
+    long T_opt; // optimal and synchronized total time
+    TPlanData curves[3]; // XYZ curves
+    void setVm(double v_)
     {
-        return (long)T;
+        for (auto& curve : curves) {
+            curve.v_m = v_;
+        }
     }
 
-    double getTCurve(int count)
+    void setAm(double a_)
+    {
+        for (auto& curve : curves) {
+            curve.a_m = a_;
+        }
+    }
+
+    void setS(double* Ss_)
+    {
+        for (int i = 0; i < 3; i++) {
+            curves[i].S = Ss_[i];
+        }
+    }
+
+    void calcOptTimeParamAll()
+    {
+        for (auto& c : curves) {
+            if (c.S == 0)
+                continue;
+
+            c.tri_or_trap = (c.v_m * c.v_m / c.a_m >= c.S);
+
+            if (c.tri_or_trap) {
+                c.v_m = sqrt(c.S * c.a_m);
+                c.Ta = c.v_m / c.a_m;
+                c.T = 2 * c.Ta;
+            } else {
+                c.Ta = c.v_m / c.a_m;
+                c.T = c.v_m / c.a_m + c.S / c.v_m;
+            }
+        }
+    }
+
+    void calcGivenTimeParam(TPlanData& c, double time)
+    {
+        c.T = time;
+        double v1 = 0.5 * (c.a_m * c.T + sqrt(c.a_m * c.a_m * c.T * c.T - 4 * c.a_m * c.S));
+        double v2 = 0.5 * (c.a_m * c.T - sqrt(c.a_m * c.a_m * c.T * c.T - 4 * c.a_m * c.S));
+        if (v1 > 0 && v2 > 0)
+            c.v_m = v1 < v2 ? v1 : v2;
+        else if (v1 < 0 && v2 > 0)
+            c.v_m = v2;
+        else // v1>0 && v2<0
+            c.v_m = v1;
+
+        c.Ta = c.v_m / c.a_m;
+    }
+
+    long maximum(double a, double b, double c)
+    {
+        double max = (a < b) ? b : a;
+        return (long)((max < c) ? c : max);
+    }
+
+    double getTrapCurve(TPlanData& c, int count)
     {
         double s;
         int t = (count + 1) / 1000.0; // ms to s
-        if (tri_or_trap) {
-            if (t < Ta)
-                s = 0.5 * a_m * t * t;
-
+        if (c.tri_or_trap) {
+            if (t < c.Ta)
+                s = 0.5 * c.a_m * t * t;
             else
-                s = 0.5 * a_m * Ta * Ta + 0.5 * (t - Ta) * (2 * v_m - a_m * (t - Ta));
+                s = 0.5 * c.a_m * c.Ta * c.Ta + 0.5 * (t - c.Ta) * (2 * c.v_m - c.a_m * (t - c.Ta));
 
         } else {
-            if (t < Ta)
-                s = 0.5 * a_m * t * t;
-
-            else if (t >= Ta && t < (T - Ta))
-                s = 0.5 * a_m * Ta * Ta + v_m * (t - Ta);
-
+            if (t < c.Ta)
+                s = 0.5 * c.a_m * t * t;
+            else if (t >= c.Ta && t < (c.T - c.Ta))
+                s = 0.5 * c.a_m * c.Ta * c.Ta + c.v_m * (t - c.Ta);
             else
-                s = 0.5 * a_m * Ta * Ta + v_m * (T - 2 * Ta) + 0.5 * (t - (T - Ta)) * (2 * v_m - a_m * (t - (T - Ta)));
+                s = 0.5 * c.a_m * c.Ta * c.Ta + c.v_m * (c.T - 2 * c.Ta) + 0.5 * (t - (c.T - c.Ta)) * (2 * c.v_m - c.a_m * (t - (c.T - c.Ta)));
         }
         return s;
     }
 
-    void getCurveParam()
+public:
+    long getTime()
     {
-        tri_or_trap = (v_m * v_m / a_m >= S);
-        if (tri_or_trap) {
-            v_m = sqrt(S * a_m);
-            Ta = v_m / a_m;
-            T = 2 * Ta;
-        } else {
-            Ta = v_m / a_m;
-            T = v_m / a_m + S / v_m;
+        return T_opt * 1000;
+    }
+
+    TPlan(double a_, double v_, double* Ss_)
+    {
+        this->A_max = a_;
+        this->V_max = v_;
+
+        setAm(A_max);
+        setVm(V_max);
+        setS(Ss_);
+        calcOptTimeParamAll();
+
+        this->T_opt = maximum(curves[0].T, curves[1].T, curves[2].T);
+
+        if (curves[0].T < T_opt) {
+            calcGivenTimeParam(curves[0], T_opt);
+        }
+
+        if (curves[1].T < T_opt) {
+            calcGivenTimeParam(curves[1], T_opt);
+        }
+
+        if (curves[2].T < T_opt) {
+            calcGivenTimeParam(curves[2], T_opt);
         }
     }
 
-    TPlan(double a, double v, double s, double t = -1)
+    double getXCurve(int count)
     {
-        this->a_m = a;
-        this->v_m = v;
-        this->S = s;
-        this->T = t;
+        return getTrapCurve(curves[0], count);
+    }
 
-        if (t > 0) {
-            double v1 = 0.5 * (a_m * T + sqrt(a_m * a_m * T * T - 4 * a_m * S));
-            double v2 = 0.5 * (a_m * T - sqrt(a_m * a_m * T * T - 4 * a_m * S));
-            if (v1 > 0 && v2 > 0)
-                this->v_m = v1 < v2 ? v1 : v2;
-            else if (v1 < 0 && v2 > 0)
-                this->v_m = v2;
-            else // v1>0 && v2<0
-                this->v_m = v1;
+    double getYCurve(int count)
+    {
+        return getTrapCurve(curves[1], count);
+    }
 
-            this->Ta = v_m / a_m;
-        }
+    double getZCurve(int count)
+    {
+        return getTrapCurve(curves[2], count);
     }
 
     ~TPlan() { }
-}
+};
