@@ -11,6 +11,8 @@ Course project of ME337 Advanced Actuation for Robots at SUSTech.
 - Industrial Personal Computer
 - EtherCat communication
 
+<img src="images/xyz_render.png" width="400">
+
 ## Trapezoidal Speed Planner
 
 - Optimal time trapezoidal planning
