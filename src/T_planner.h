@@ -11,6 +11,16 @@ struct TPlanData {
 };
 
 class TPlanner {
+
+public:
+    TPlanner(double a_, double v_, double* Ss_);
+    ~TPlanner() { }
+
+    long getPlanTime() { return (long)(T_opt * 1000); }
+    double getXCurve(long count) { return getTrapCurve(curves[0], count); }
+    double getYCurve(long count) { return getTrapCurve(curves[1], count); }
+    double getZCurve(long count) { return getTrapCurve(curves[2], count); }
+
 private:
     double A_max;
     double V_max;
@@ -24,15 +34,6 @@ private:
     void calcGivenTimeParam(TPlanData& c, double time);
     double maximum(double a, double b, double c);
     double getTrapCurve(TPlanData& c, long count);
-
-public:
-    TPlanner(double a_, double v_, double* Ss_);
-    ~TPlanner() { }
-
-    long getPlanTime() { return (long)(T_opt * 1000); }
-    double getXCurve(long count) { return getTrapCurve(curves[0], count); }
-    double getYCurve(long count) { return getTrapCurve(curves[1], count); }
-    double getZCurve(long count) { return getTrapCurve(curves[2], count); }
 };
 
 #endif
