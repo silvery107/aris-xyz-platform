@@ -2,7 +2,7 @@
 
 ## Introduction
 
-TODO
+Course project of ME337 Advanced Actuation for Robots at SUSTech.
 
 ## Hardware
 
