@@ -6,6 +6,7 @@
 #include <vector>
 #include "robot.h"
 #include "plan.h"
+#include "T_planner.h"
 
 using namespace aris::dynamic;
 using namespace aris::plan;

@@ -11,7 +11,7 @@ using namespace std;
 auto TCurve::getTCurve(int count)->double
 {
 
-	int t = count + 1;
+	double t = count + 1;
 	double s = 0;
 
 	if (2 * ta_ == Tc_)   //三角形曲线
