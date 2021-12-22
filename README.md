@@ -6,8 +6,7 @@ Course project of ME337 Advanced Actuation for Robots at SUSTech.
 
 ## TODO
 
-- Plot T Planner to check each axis
-- Change trap planner for 1,2,3,4,E,R cmds.
+- Change trap planner for E,R cmds.
 
 ## Hardware
 

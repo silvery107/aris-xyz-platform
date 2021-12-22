@@ -88,6 +88,7 @@ auto ReturnZ::executeRT()->int //进入实时线程
     static double begin_angle[3];
     double angle, x_pos, y_pos, z_pos;
     double totaltime;
+    double xyz_pos[3] = {};
 
     if(count()==1){
         begin_angle[0] = controller()->motionPool()[X].actualPos();
@@ -95,6 +96,10 @@ auto ReturnZ::executeRT()->int //进入实时线程
         begin_angle[2] = controller()->motionPool()[Z].actualPos();
     }
 
+    // xyz_pos[0] = -(begin_angle[0] - __ZERO_ANGLE[0]);
+    // xyz_pos[1] = -(begin_angle[1] - __ZERO_ANGLE[1]);
+    // xyz_pos[2] = -(begin_angle[2] - __ZERO_ANGLE[2]);
+    
     x_pos = -(begin_angle[0] - __ZERO_ANGLE[0])*36.0/PI;
     y_pos = -(begin_angle[1] - __ZERO_ANGLE[1])*36.0/PI;
     z_pos = -(begin_angle[2] - __ZERO_ANGLE[2])*36.0/PI;
@@ -104,26 +109,21 @@ auto ReturnZ::executeRT()->int //进入实时线程
 
     if (z_pos<Z_THR && z_pos>-Z_THR){ // Z pos near zero
         totaltime = s1.getTc()*1000;
-
         angle = begin_angle[0] + x_pos/36.0*PI * s1.getTCurve(count());
         controller()->motionPool()[X].setTargetPos(angle);
         angle = begin_angle[1] + y_pos/36.0*PI * s1.getTCurve(count());
         controller()->motionPool()[Y].setTargetPos(angle);
-
     }else{
         totaltime = s1.getTc()*2000;
-
         if(count() <= s1.getTc()*1000){ // 抬升夹爪
             angle = begin_angle[2] + z_pos/36.0*PI * s1.getTCurve(count());
             controller()->motionPool()[Z].setTargetPos(angle);
-
         }else if(s1.getTc()*1000 < count() && count() <= s1.getTc()*2000){ // 夹爪回(0, 0)
             angle = begin_angle[0] + x_pos/36.0*PI * s1.getTCurve(count()-s1.getTc()*1000);
             controller()->motionPool()[X].setTargetPos(angle);
             angle = begin_angle[1] + y_pos/36.0*PI * s1.getTCurve(count()-s1.getTc()*1000);
             controller()->motionPool()[Y].setTargetPos(angle);
         }
-
     }
 
     return totaltime - count();
@@ -208,30 +208,32 @@ auto ZeroZ::prepareNrt()->void
 auto ZeroZ::executeRT()->int //进入实时线程
 {
     static double begin_angle[3];
-    double totaletime;
+    double totaltime;
+    double xyz_pos[3] = {};
+    double angle;
+
     if(count()==1){
         begin_angle[0] = controller()->motionPool()[X].actualPos();
         begin_angle[1] = controller()->motionPool()[Y].actualPos();
         begin_angle[2] = controller()->motionPool()[Z].actualPos();
     }
 
+    xyz_pos[2] = -Z_ZERO/36.0*PI;
 
-    TCurve s1(C_A, C_V); //s1(a,v)
-    s1.getCurveParam(); // 计算曲线参数
-    totaletime = s1.getTc()*1000;
+    TPlanner t_plan(T_A, T_V, xyz_pos);
+    totaltime = t_plan.getPlanTime();
 
     // lift Z from 0 to Z_ZERO
-    double angle = begin_angle[2] - Z_ZERO/36.0*PI * s1.getTCurve(count());
-
+    angle = begin_angle[2] + t_plan.getZCurve(count());
     controller()->motionPool()[Z].setTargetPos(angle);
 
     // record the final Z pos as the __ZERO_ANGLE
-    if(count()==int(totaletime)){
+    if(count()==int(totaltime)){
         begin_angle[2] = angle;
         set_zero_angle(begin_angle);
     }
 
-    return totaletime - count();
+    return totaltime - count();
 }
 auto ZeroZ::collectNrt()->void {}
 
@@ -268,19 +270,10 @@ auto Pt1::executeRT()->int //进入实时线程
     TPlanner t_plan(T_A, T_V, xyz_pos);
     totaltime = t_plan.getPlanTime();
 
-
     angle = begin_angle[0] + t_plan.getXCurve(count());
     controller()->motionPool()[X].setTargetPos(angle);
-//    angle = begin_angle[1] + t_plan.getYCurve(count());
-//    controller()->motionPool()[Y].setTargetPos(angle);
-
-    // TCurve s1(C_A, C_V); // s(a,v)
-    // s1.getCurveParam();
-    // totaletime = s1.getTc()*1000;
-    // angle = begin_angle[0] + x_pos/36.0*PI * s1.getTCurve(count());
-    // controller()->motionPool()[X].setTargetPos(angle);
-    // angle = begin_angle[1] + y_pos/36.0*PI * s1.getTCurve(count());
-    // controller()->motionPool()[Y].setTargetPos(angle);
+    angle = begin_angle[1] + t_plan.getYCurve(count());
+    controller()->motionPool()[Y].setTargetPos(angle);
 
     return totaltime - count();
 }
@@ -305,25 +298,26 @@ auto Pt2::executeRT()->int //进入实时线程
 {
     static double begin_angle[2];
     double angle;
-    double x_pos, y_pos;
+    double xyz_pos[3] = {};
+    long totaltime;
 
     if(count()==1){
         begin_angle[0] = controller()->motionPool()[X].actualPos();
         begin_angle[1] = controller()->motionPool()[Y].actualPos();
     }
 
-    x_pos = -(begin_angle[0]-__ZERO_ANGLE[0])*36.0/PI + POINT_2[0];
-    y_pos = -(begin_angle[1]-__ZERO_ANGLE[1])*36.0/PI + POINT_2[1];
+    xyz_pos[0] = -(begin_angle[0]-__ZERO_ANGLE[0]) + POINT_2[0]/36.0*PI;
+    xyz_pos[1] = -(begin_angle[1]-__ZERO_ANGLE[1]) + POINT_2[1]/36.0*PI;
     
-    TCurve s1(C_A, C_V); // s(a,v)
-    s1.getCurveParam();
+    TPlanner t_plan(T_A, T_V, xyz_pos);
+    totaltime = t_plan.getPlanTime();
 
-    angle = begin_angle[0] + x_pos/36.0*PI * s1.getTCurve(count());
+    angle = begin_angle[0] + t_plan.getXCurve(count());
     controller()->motionPool()[X].setTargetPos(angle);
-    angle = begin_angle[1] + y_pos/36.0*PI * s1.getTCurve(count());
+    angle = begin_angle[1] + t_plan.getYCurve(count());
     controller()->motionPool()[Y].setTargetPos(angle);
 
-    return s1.getTc() * 1000 - count();
+    return totaltime - count();
 }
 auto Pt2::collectNrt()->void {}
 
@@ -346,25 +340,26 @@ auto Pt3::executeRT()->int //进入实时线程
 {
     static double begin_angle[2];
     double angle;
-    double x_pos, y_pos;
+    double xyz_pos[3] = {};
+    long totaltime;
 
     if(count()==1){
         begin_angle[0] = controller()->motionPool()[X].actualPos();
         begin_angle[1] = controller()->motionPool()[Y].actualPos();
     }
 
-    x_pos = -(begin_angle[0]-__ZERO_ANGLE[0])*36.0/PI + POINT_3[0];
-    y_pos = -(begin_angle[1]-__ZERO_ANGLE[1])*36.0/PI + POINT_3[1];
+    xyz_pos[0] = -(begin_angle[0]-__ZERO_ANGLE[0]) + POINT_3[0]/36.0*PI;
+    xyz_pos[1] = -(begin_angle[1]-__ZERO_ANGLE[1]) + POINT_3[1]/36.0*PI;
     
-    TCurve s1(C_A, C_V); // s(a,v)
-    s1.getCurveParam();
+    TPlanner t_plan(T_A, T_V, xyz_pos);
+    totaltime = t_plan.getPlanTime();
 
-    angle = begin_angle[0] + x_pos/36.0*PI * s1.getTCurve(count());
+    angle = begin_angle[0] + t_plan.getXCurve(count());
     controller()->motionPool()[X].setTargetPos(angle);
-    angle = begin_angle[1] + y_pos/36.0*PI * s1.getTCurve(count());
+    angle = begin_angle[1] + t_plan.getYCurve(count());
     controller()->motionPool()[Y].setTargetPos(angle);
 
-    return s1.getTc() * 1000 - count();
+    return totaltime - count();
 }
 auto Pt3::collectNrt()->void {}
 
@@ -387,25 +382,26 @@ auto Pt4::executeRT()->int //进入实时线程
 {
     static double begin_angle[2];
     double angle;
-    double x_pos, y_pos;
+    double xyz_pos[3] = {};
+    long totaltime;
 
     if(count()==1){
         begin_angle[0] = controller()->motionPool()[X].actualPos();
         begin_angle[1] = controller()->motionPool()[Y].actualPos();
     }
 
-    x_pos = -(begin_angle[0]-__ZERO_ANGLE[0])*36.0/PI + POINT_4[0];
-    y_pos = -(begin_angle[1]-__ZERO_ANGLE[1])*36.0/PI + POINT_4[1];
+    xyz_pos[0] = -(begin_angle[0]-__ZERO_ANGLE[0]) + POINT_4[0]/36.0*PI;
+    xyz_pos[1] = -(begin_angle[1]-__ZERO_ANGLE[1]) + POINT_4[1]/36.0*PI;
     
-    TCurve s1(C_A, C_V); // s(a,v)
-    s1.getCurveParam();
+    TPlanner t_plan(T_A, T_V, xyz_pos);
+    totaltime = t_plan.getPlanTime();
 
-    angle = begin_angle[0] + x_pos/36.0*PI * s1.getTCurve(count());
+    angle = begin_angle[0] + t_plan.getXCurve(count());
     controller()->motionPool()[X].setTargetPos(angle);
-    angle = begin_angle[1] + y_pos/36.0*PI * s1.getTCurve(count());
+    angle = begin_angle[1] + t_plan.getYCurve(count());
     controller()->motionPool()[Y].setTargetPos(angle);
 
-    return s1.getTc() * 1000 - count();
+    return totaltime - count();
 }
 auto Pt4::collectNrt()->void {}
 
