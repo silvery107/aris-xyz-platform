@@ -12,6 +12,7 @@ struct TPlanData {
 };
 
 class TPlanner {
+    // 适用条件：零始末速度
 
 public:
     TPlanner(double a_, double v_, double* Ss_);
