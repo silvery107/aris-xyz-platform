@@ -14,16 +14,11 @@ TPlanner::TPlanner(double a_, double v_, double* Ss_)
 
     this->T_opt = maximum(curves[0].T, curves[1].T, curves[2].T);
 
-    if (curves[0].T < T_opt) {
-        calcGivenTimeParam(curves[0], T_opt);
-    }
-
-    if (curves[1].T < T_opt) {
-        calcGivenTimeParam(curves[1], T_opt);
-    }
-
-    if (curves[2].T < T_opt) {
-        calcGivenTimeParam(curves[2], T_opt);
+    for(int i=0; i<3; i++){
+        double temp = curves[i].T;
+        if (temp<T_opt && temp != 0.0){
+            calcGivenTimeParam(curves[i], T_opt);
+        }
     }
 }
 
@@ -55,10 +50,12 @@ void TPlanner::setS(double* Ss_)
 
 void TPlanner::calcOptTimeParamAll()
 {
-    // ! error here
     for (auto& c : curves) {
-        if (c.S == 0.0)
+        if (c.S == 0.0){
+            c.Ta = 0;
+            c.T = 0;
             continue;
+        }
 
         c.tri_or_trap = (c.v_m * c.v_m / c.a_m >= c.S);
 
@@ -75,7 +72,6 @@ void TPlanner::calcOptTimeParamAll()
 
 void TPlanner::calcGivenTimeParam(TPlanData& c, double time)
 {
-    // ! error here
     c.T = time;
     double v1 = 0.5 * (c.a_m * c.T + sqrt(c.a_m * c.a_m * c.T * c.T - 4.0 * c.a_m * c.S));
     double v2 = 0.5 * (c.a_m * c.T - sqrt(c.a_m * c.a_m * c.T * c.T - 4.0 * c.a_m * c.S));
@@ -87,6 +83,7 @@ void TPlanner::calcGivenTimeParam(TPlanData& c, double time)
         c.v_m = v1;
 
     c.Ta = c.v_m / c.a_m;
+    c.tri_or_trap = (c.v_m * c.v_m / c.a_m >= c.S)
 }
 
 double TPlanner::maximum(double a, double b, double c)
@@ -97,8 +94,8 @@ double TPlanner::maximum(double a, double b, double c)
 
 double TPlanner::getTrapCurve(TPlanData& c, long count)
 {
-    if (count > getPlanTime()) {
-        count = getPlanTime();
+    if (count > c.T * 1000.0) {
+        count = c.T * 1000.0;
     }
 
     double s;

@@ -33,3 +33,5 @@
 
 # Custom
 .vscode/
+*.ipynb
+__pycache__/
