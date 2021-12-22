@@ -13,18 +13,18 @@ using namespace aris::plan;
 
 const double PI = aris::PI;
 
-const double T_A = 5;       // t planner acc
-const double T_V = 5;       // t planner vel
-const double C_A = 5;       // command acceleration
-const double C_V = 2;       // command velocity
+const double T_A = 50;       // t planner acc
+const double T_V = 100;      // t planner vel
+const double C_A = 1;       // command acceleration
+const double C_V = 1;       // command velocity
 const double M_A = 5;       // move acc
 const double M_V = 5;       // move vel
 const double MOV_LEN = 10;  // WASD move distance in mm
-const double Z_ZERO = 150;  // initial Z height
-const double Z_DROP = -50;  // drop Z distance
+const double Z_ZERO = 200;  // initial Z height
+const double Z_DROP = 125 - Z_ZERO;  // drop Z distance
 const double Z_THR = 1;     // threshold in mm
 
-const double POINT_1[2] = { -150, -100};   //! (x,y) distance >= 300 will be unsafe !!!
+const double POINT_1[2] = { -150, -100};   //! (x,y) distance >= 200 will be unsafe !!!
 const double POINT_2[2] = { -150,  100};
 const double POINT_3[2] = { -300, -100};
 const double POINT_4[2] = { -300,  100};
@@ -254,7 +254,7 @@ auto Pt1::executeRT()->int //进入实时线程
 {
     static double begin_angle[2];
     double angle;
-    double xyz_pos[3];
+    double xyz_pos[3] = {};
     long totaltime;
 
     if(count()==1){
@@ -262,16 +262,17 @@ auto Pt1::executeRT()->int //进入实时线程
         begin_angle[1] = controller()->motionPool()[Y].actualPos();
     }
 
-    xyz_pos[0] = -(begin_angle[0]-__ZERO_ANGLE[0])*36.0/PI + POINT_1[0];
-    xyz_pos[1] = -(begin_angle[1]-__ZERO_ANGLE[1])*36.0/PI + POINT_1[1];
+    xyz_pos[0] = -(begin_angle[0]-__ZERO_ANGLE[0]) + POINT_1[0]/36.0*PI;
+    xyz_pos[1] = -(begin_angle[1]-__ZERO_ANGLE[1]) + POINT_1[1]/36.0*PI;
     
     TPlanner t_plan(T_A, T_V, xyz_pos);
     totaltime = t_plan.getPlanTime();
-    
-    angle = begin_angle[0] + xyz_pos[0]/36.0*PI * t_plan.getXCurve(count());
+
+
+    angle = begin_angle[0] + t_plan.getXCurve(count());
     controller()->motionPool()[X].setTargetPos(angle);
-    angle = begin_angle[1] + xyz_pos[1]/36.0*PI * t_plan.getYCurve(count());
-    controller()->motionPool()[Y].setTargetPos(angle);
+//    angle = begin_angle[1] + t_plan.getYCurve(count());
+//    controller()->motionPool()[Y].setTargetPos(angle);
 
     // TCurve s1(C_A, C_V); // s(a,v)
     // s1.getCurveParam();
