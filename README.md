@@ -6,7 +6,7 @@ Course project of ME337 Advanced Actuation for Robots at SUSTech.
 
 ## TODO
 
-- Change trap planner for E,R cmds.
+- Update trap planner for E and R cmds.
 
 ## Hardware
 
