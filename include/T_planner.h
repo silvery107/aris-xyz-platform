@@ -15,9 +15,10 @@ class TPlanner {
     // 适用条件：零始末速度
 
 public:
+    TPlanner(double a_, double v_);
     TPlanner(double a_, double v_, double* Ss_);
     ~TPlanner() { }
-
+    void update(double* xyz_pos);
     long getPlanTime() { return (long)(T_opt * 1000); }
     double getXCurve(long count) { return getTrapCurve(curves[0], count); }
     double getYCurve(long count) { return getTrapCurve(curves[1], count); }
