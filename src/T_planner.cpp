@@ -19,17 +19,7 @@ TPlanner::TPlanner(double a_, double v_, double* Ss_)
     setAm(A_max);
     setVm(V_max);
 
-    setS(Ss_);
-    calcOptTimeParamAll();
-
-    this->T_opt = maximum(curves[0].T, curves[1].T, curves[2].T);
-
-    for (int i = 0; i < 3; i++) {
-        double temp = curves[i].T;
-        if (temp < T_opt && temp != 0.0) {
-            calcGivenTimeParam(curves[i], T_opt);
-        }
-    }
+    update(Ss_);
 }
 
 void TPlanner::update(double* xyz_pos)
