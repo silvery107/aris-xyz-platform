@@ -13,7 +13,6 @@ TPlanner::TPlanner(double a_, double v_)
 
 TPlanner::TPlanner(double a_, double v_, double* Ss_)
 {
-    this(a_, v_);
     this->A_max = a_;
     this->V_max = v_;
 
