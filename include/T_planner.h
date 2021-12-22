@@ -7,6 +7,7 @@ struct TPlanData {
     double S;
     double T;
     double Ta;
+    double sign;
     bool tri_or_trap; // true for tri, false for trap
 };
 
