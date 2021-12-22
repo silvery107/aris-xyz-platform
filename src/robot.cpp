@@ -13,6 +13,8 @@ using namespace aris::plan;
 
 const double PI = aris::PI;
 
+const double T_A = 5;       // t planner acc
+const double T_V = 5;       // t planner vel
 const double C_A = 5;       // command acceleration
 const double C_V = 2;       // command velocity
 const double M_A = 5;       // move acc
@@ -252,25 +254,34 @@ auto Pt1::executeRT()->int //进入实时线程
 {
     static double begin_angle[2];
     double angle;
-    double x_pos, y_pos;
+    double xyz_pos[3];
+    long totaltime;
 
     if(count()==1){
         begin_angle[0] = controller()->motionPool()[X].actualPos();
         begin_angle[1] = controller()->motionPool()[Y].actualPos();
     }
 
-    x_pos = -(begin_angle[0]-__ZERO_ANGLE[0])*36.0/PI + POINT_1[0];
-    y_pos = -(begin_angle[1]-__ZERO_ANGLE[1])*36.0/PI + POINT_1[1];
+    xyz_pos[0] = -(begin_angle[0]-__ZERO_ANGLE[0])*36.0/PI + POINT_1[0];
+    xyz_pos[1] = -(begin_angle[1]-__ZERO_ANGLE[1])*36.0/PI + POINT_1[1];
     
-    TCurve s1(C_A, C_V); // s(a,v)
-    s1.getCurveParam();
-
-    angle = begin_angle[0] + x_pos/36.0*PI * s1.getTCurve(count());
+    TPlanner t_plan(T_A, T_V, xyz_pos);
+    totaltime = t_plan.getPlanTime();
+    
+    angle = begin_angle[0] + xyz_pos[0]/36.0*PI * t_plan.getXCurve(count());
     controller()->motionPool()[X].setTargetPos(angle);
-    angle = begin_angle[1] + y_pos/36.0*PI * s1.getTCurve(count());
+    angle = begin_angle[1] + xyz_pos[1]/36.0*PI * t_plan.getYCurve(count());
     controller()->motionPool()[Y].setTargetPos(angle);
 
-    return s1.getTc() * 1000 - count();
+    // TCurve s1(C_A, C_V); // s(a,v)
+    // s1.getCurveParam();
+    // totaletime = s1.getTc()*1000;
+    // angle = begin_angle[0] + x_pos/36.0*PI * s1.getTCurve(count());
+    // controller()->motionPool()[X].setTargetPos(angle);
+    // angle = begin_angle[1] + y_pos/36.0*PI * s1.getTCurve(count());
+    // controller()->motionPool()[Y].setTargetPos(angle);
+
+    return totaltime - count();
 }
 auto Pt1::collectNrt()->void {}
 
