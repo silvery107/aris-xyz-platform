@@ -11,7 +11,7 @@ Course project of ME337 Advanced Actuation for Robots at SUSTech.
 - Industrial Personal Computer
 - EtherCat communication
 
-<a href="https://github.com/silvery107/aris-xyz-platform/raw/main/images/xyz_demo.mp4">Video</a>
+<a href="images/xyz_demo.mp4">Video</a>
 
 
 <img src="images/xyz_render.png" width="400">
