@@ -85,11 +85,11 @@ class TPlanner:
         return c if max < c else max
     
     def getTrapCurve(self, c:TPlanData, count:int):
-        if count > c.T*1000:
-            count = c.T*1000
-
         s = 0.0
         t = (count + 1) / 1000.0
+        if t > c.T:
+            t = c.T
+            
         if c.tri_or_trap:
             if t < c.Ta:
                 s = 0.5 * c.a_m * t * t

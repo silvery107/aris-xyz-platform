@@ -37,6 +37,15 @@ void TPlanner::update(double* xyz_pos)
     }
 }
 
+long TPlanner::getPlanTime(double* xyz_pos){
+    setS(xyz_pos);
+    calcOptTimeParamAll();
+
+    this->T_opt = maximum(curves[0].T, curves[1].T, curves[2].T);
+
+    return getPlanTime();
+}
+
 void TPlanner::setVm(double v_)
 {
     for (auto& curve : curves) {
@@ -109,12 +118,13 @@ double TPlanner::maximum(double a, double b, double c)
 
 double TPlanner::getTrapCurve(TPlanData& c, long count)
 {
-    if (count > c.T * 1000.0) {
-        count = c.T * 1000.0;
-    }
-
     double s;
     double t = (count + 1) / 1000.0; // ms to s
+
+    // avoid count larger than curve time
+    if (t > c.T)
+        t = c.T;
+
     if (c.tri_or_trap) {
         if (t < c.Ta)
             s = 0.5 * c.a_m * t * t;

@@ -18,8 +18,9 @@ public:
     TPlanner(double a_, double v_);
     TPlanner(double a_, double v_, double* Ss_);
     ~TPlanner() { }
-    void update(double* xyz_pos);
+    void update(double* xyz_pos); // update new displacement
     long getPlanTime() { return (long)(T_opt * 1000); }
+    long getPlanTime(double* xyz_pos); 
     double getXCurve(long count) { return getTrapCurve(curves[0], count); }
     double getYCurve(long count) { return getTrapCurve(curves[1], count); }
     double getZCurve(long count) { return getTrapCurve(curves[2], count); }
