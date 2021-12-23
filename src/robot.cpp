@@ -28,7 +28,7 @@ const double POINT_1[2] = {  -30, -160};   // (x,y)
 const double POINT_2[2] = {  -30,  160};
 const double POINT_3[2] = { -180, -160};
 const double POINT_4[2] = { -180,  160};
-const double POINT_5[2] = {  -110, 0};
+const double POINT_5[2] = { -110, 0};
 const double POINT_END[2] = {220, 0};
 
 const int X = 0; // X motor index
