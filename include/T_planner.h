@@ -19,7 +19,7 @@ public:
     TPlanner(double a_, double v_, double* Ss_);
     ~TPlanner() { }
     void update(double* xyz_pos); // update new displacement
-    long getPlanTime() { return (long)(T_opt * 1000); }
+    long getPlanTime() { return T_opt==0.0 ? 1 : (long)(T_opt * 1000); }
     long getPlanTime(double* xyz_pos); 
     double getXCurve(long count) { return getTrapCurve(curves[0], count); }
     double getYCurve(long count) { return getTrapCurve(curves[1], count); }
