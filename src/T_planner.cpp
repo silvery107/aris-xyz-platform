@@ -76,8 +76,8 @@ void TPlanner::calcOptTimeParamAll()
 {
     for (auto& c : curves) {
         if (c.S == 0.0) {
-            c.Ta = 0;
-            c.T = 0;
+            c.Ta = 0.0;
+            c.T = 0.0;
             continue;
         }
 
