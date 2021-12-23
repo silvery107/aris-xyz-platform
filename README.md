@@ -4,10 +4,6 @@
 
 Course project of ME337 Advanced Actuation for Robots at SUSTech.
 
-## TODO
-
-- Update trap planner for E and R cmds.
-
 ## Hardware
 
 - Step motors
@@ -16,6 +12,8 @@ Course project of ME337 Advanced Actuation for Robots at SUSTech.
 - EtherCat communication
 
 <img src="images/xyz_render.png" width="400">
+
+<img src="images/xyz_final.jpg" width="400">
 
 ## Trapezoidal Speed Planner
 
