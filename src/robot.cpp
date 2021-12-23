@@ -13,22 +13,23 @@ using namespace aris::plan;
 
 const double PI = aris::PI;
 
-const double T_A = 50;      // t planner acc
-const double T_V = 100;     // t planner vel
+const double T_A = 80;      // t planner acc
+const double T_V = 25;     // t planner vel
 const double C_A = 1;       // command acc
 const double C_V = 1;       // command vel
 const double M_A = 5;       // move acc
 const double M_V = 5;       // move vel
-const double MOV_LEN = 10;  // WASD move distance in mm
-const double Z_ZERO = 200;  // initial Z height
-const double Z_DROP = 125 - Z_ZERO;  // drop Z distance
+const double MOV_LEN = 20;  // WASD move distance in mm
+const double Z_ZERO = 250;  // initial Z height
+const double Z_DROP = -140;  // drop Z distance
 const double Z_THR = 1;     // threshold in mm
 
-const double POINT_1[2] = { -150, -150};   // (x,y)
-const double POINT_2[2] = { -150,  150};
-const double POINT_3[2] = { -300, -150};
-const double POINT_4[2] = { -300,  150};
-const double POINT_END[2] = {200, 0};
+const double POINT_1[2] = {  -30, -160};   // (x,y)
+const double POINT_2[2] = {  -30,  160};
+const double POINT_3[2] = { -180, -160};
+const double POINT_4[2] = { -180,  160};
+const double POINT_5[2] = {  -110, 0};
+const double POINT_END[2] = {220, 0};
 
 const int X = 0; // X motor index
 const int Y = 2; // Y motor index
@@ -89,11 +90,11 @@ auto ReturnZ::executeRT()->int //进入实时线程
 {
     static double begin_angle[3];
     double angle, x_pos, y_pos, z_pos;
-    double totaltime = 0.0;
     // double xyz_pos[3] = {};
     double xyz_pt1[3] = {};
     double xyz_pt2[3] = {};
-    double seg_time;
+    long seg_time;
+    long totaltime;
 
     if(count()==1){
         begin_angle[0] = controller()->motionPool()[X].actualPos();
@@ -106,12 +107,16 @@ auto ReturnZ::executeRT()->int //进入实时线程
     z_pos = -(begin_angle[2] - __ZERO_ANGLE[2]);
 
     TPlanner t_plan(T_A, T_V);
-    xyz_pt1 = {x_pos, y_pos, 0};
-    xyz_pt2 = {0, 0, z_pos};
-    // TCurve s1(C_A, C_V); //s1(a,v)
-    // s1.getCurveParam(); // 计算曲线参数
 
-    if (xyz_pos[2]<Z_THR && xyz_pos[2]>-Z_THR){ // Z pos near zero
+    xyz_pt1[0] = x_pos;
+    xyz_pt1[1] = y_pos;
+    xyz_pt1[2] = 0;
+
+    xyz_pt2[0] = 0;
+    xyz_pt2[1] = 0;
+    xyz_pt2[2] = z_pos;
+
+    if (z_pos<Z_THR && z_pos>-Z_THR){ // Z pos near zero
         t_plan.update(xyz_pt1);
         totaltime = t_plan.getPlanTime();
 
@@ -136,18 +141,6 @@ auto ReturnZ::executeRT()->int //进入实时线程
             angle = begin_angle[1] + t_plan.getYCurve(count()-seg_time);
             controller()->motionPool()[Y].setTargetPos(angle);
         }
-
-        // totaltime = s1.getTc()*2000;
-        // if(count() <= s1.getTc()*1000){ // 抬升夹爪
-        //     angle = begin_angle[2] + z_pos * s1.getTCurve(count());
-        //     controller()->motionPool()[Z].setTargetPos(angle);
-
-        // }else if(s1.getTc()*1000 < count() && count() <= s1.getTc()*2000){ // 夹爪回(0, 0)
-        //     angle = begin_angle[0] + x_pos * s1.getTCurve(count()-s1.getTc()*1000);
-        //     controller()->motionPool()[X].setTargetPos(angle);
-        //     angle = begin_angle[1] + y_pos * s1.getTCurve(count()-s1.getTc()*1000);
-        //     controller()->motionPool()[Y].setTargetPos(angle);
-        // }
     }
 
     return totaltime - count();
@@ -175,7 +168,7 @@ auto Place::executeRT()->int //进入实时线程
     double angle;
     double x_pos, y_pos;
     double xyz_pt1[3], xyz_pt2[3], xyz_pt3[3];
-    double totaltime, seg_time1, seg_time2;
+    long totaltime, seg_time1, seg_time2;
 
     if(count()==1){
         begin_angle[0] = controller()->motionPool()[X].actualPos();
@@ -187,12 +180,21 @@ auto Place::executeRT()->int //进入实时线程
     y_pos = -(begin_angle[1]-__ZERO_ANGLE[1]) + POINT_END[1]/36.0*PI;
     
     TPlanner t_plan(T_A, T_V);
-    xyz_pt1 = {0, 0, +Z_DROP/36.0*PI};
-    xyz_pt2 = {x_pos, y_pos, 0};
-    xyz_pt3 = {0, 0, -Z_DROP/36.0*PI};
+    xyz_pt1[0] = 0;
+    xyz_pt1[1] = 0;
+    xyz_pt1[2] = +Z_DROP/36.0*PI;
+
+    xyz_pt2[0] = x_pos;
+    xyz_pt2[1] = y_pos;
+    xyz_pt2[2] = 0;
+
+    xyz_pt3[0] = 0;
+    xyz_pt3[1] = 0;
+    xyz_pt3[2] = -Z_DROP/36.0*PI;
+
     seg_time1 = t_plan.getPlanTime(xyz_pt1);
-    seg_time2 = seg_time1 + t_plan.getPlanTime(xyz_pt2);
-    totaltime = seg_time2 + t_plan.getPlanTime(xyz_pt3);
+    totaltime = seg_time1 + t_plan.getPlanTime(xyz_pt2);
+//    totaltime = seg_time2 + t_plan.getPlanTime(xyz_pt3);
 
     // TCurve s1(C_A, C_V); // s(a,v)
     // s1.getCurveParam();
@@ -209,18 +211,18 @@ auto Place::executeRT()->int //进入实时线程
             begin_angle[2] = angle;
         }
     }
-    else if(seg_time1 < count() && count() <= seg_time2){ // 移动到 End Point
+    else if(seg_time1 < count() && count() <= totaltime){ // 移动到 End Point
         t_plan.update(xyz_pt2);
         angle = begin_angle[0] + t_plan.getXCurve(count()-seg_time1);
         controller()->motionPool()[X].setTargetPos(angle);
         angle = begin_angle[1] + t_plan.getYCurve(count()-seg_time1);
         controller()->motionPool()[Y].setTargetPos(angle);
     }
-    else if(seg_time2 < count() && count() <= totaltime){ // 放下夹爪
-        t_plan.update(xyz_pt3);
-        angle = begin_angle[2] + t_plan.getZCurve(count()-seg_time2);
-        controller()->motionPool()[Z].setTargetPos(angle);
-    }
+//    else if(seg_time2 < count() && count() <= totaltime){ // 放下夹爪
+//        t_plan.update(xyz_pt3);
+//        angle = begin_angle[2] + t_plan.getZCurve(count()-seg_time2);
+//        controller()->motionPool()[Z].setTargetPos(angle);
+//    }
 
     return totaltime - count();
 }
@@ -441,6 +443,48 @@ auto Pt4::executeRT()->int //进入实时线程
 }
 auto Pt4::collectNrt()->void {}
 
+//* POINT5 ////////////////////////////////////////
+Pt5::Pt5(const std::string &name) //构造函数
+{
+    aris::core::fromXmlString(command(),
+       "<Command name=\"5\">"
+        "	<Param name=\"len\" default=\"10\" abbreviation=\"n\"/>"
+        "</Command>");
+}
+auto Pt5::prepareNrt()->void
+{
+    len = doubleParam("len");
+    for(auto &m:motorOptions())
+        m = aris::plan::Plan::NOT_CHECK_ENABLE |
+            aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
+}
+auto Pt5::executeRT()->int //进入实时线程
+{
+    static double begin_angle[2];
+    double angle;
+    double xyz_pos[3] = {};
+    long totaltime;
+
+    if(count()==1){
+        begin_angle[0] = controller()->motionPool()[X].actualPos();
+        begin_angle[1] = controller()->motionPool()[Y].actualPos();
+    }
+
+    xyz_pos[0] = -(begin_angle[0]-__ZERO_ANGLE[0]) + POINT_5[0]/36.0*PI;
+    xyz_pos[1] = -(begin_angle[1]-__ZERO_ANGLE[1]) + POINT_5[1]/36.0*PI;
+
+    TPlanner t_plan(T_A, T_V, xyz_pos);
+    totaltime = t_plan.getPlanTime();
+
+    angle = begin_angle[0] + t_plan.getXCurve(count());
+    controller()->motionPool()[X].setTargetPos(angle);
+    angle = begin_angle[1] + t_plan.getYCurve(count());
+    controller()->motionPool()[Y].setTargetPos(angle);
+
+    return totaltime - count();
+}
+auto Pt5::collectNrt()->void {}
+
 //* DROPZ ////////////////////////////////////////
 DropZ::DropZ(const std::string &name) //构造函数
 {
@@ -459,18 +503,25 @@ auto DropZ::prepareNrt()->void
 auto DropZ::executeRT()->int //进入实时线程
 {
     static double begin_angle;
+    double xyz_pos[3] = {};
+    long totaltime;
+    double angle;
 
     if(count()==1){
         begin_angle = controller()->motionPool()[Z].actualPos();
     }
 
-    TCurve s1(C_A, C_V); //s1(a,v)
-    s1.getCurveParam(); // 计算曲线参数
-    double angle = begin_angle - Z_DROP/36.0*PI * s1.getTCurve(count()); // 返回count时刻的角度
+    xyz_pos[2] = - Z_DROP/36.0*PI;
+    TPlanner t_plan(T_A, T_V, xyz_pos);
+    totaltime = t_plan.getPlanTime();
+
+//    TCurve s1(C_A, C_V); //s1(a,v)
+//    s1.getCurveParam(); // 计算曲线参数
+    angle = begin_angle + t_plan.getZCurve(count()); // 返回count时刻的角度
 
     controller()->motionPool()[Z].setTargetPos(angle);
 
-    return s1.getTc() * 1000 - count();
+    return totaltime - count();
 }
 auto DropZ::collectNrt()->void {}
 
@@ -930,6 +981,7 @@ auto createPlanMotor()->std::unique_ptr<aris::plan::PlanRoot>
     plan_root->planPool().add<Pt2>();
     plan_root->planPool().add<Pt3>();
     plan_root->planPool().add<Pt4>();
+    plan_root->planPool().add<Pt5>();
     plan_root->planPool().add<Place>();
     return plan_root;
 }
