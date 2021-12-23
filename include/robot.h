@@ -72,6 +72,19 @@ class Pt4 : public aris::core::CloneObject<Pt4, aris::plan::Plan>
     double len;
 };
 
+class Pt5 : public aris::core::CloneObject<Pt5, aris::plan::Plan>
+{
+  public:
+    auto virtual prepareNrt() -> void;
+    auto virtual executeRT() -> int;
+    auto virtual collectNrt() -> void;
+
+    explicit Pt5(const std::string &name = "pt_5");
+
+  private:
+    double len;
+};
+
 class ReturnZ : public aris::core::CloneObject<ReturnZ, aris::plan::Plan>
 {
   public:
