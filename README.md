@@ -10,13 +10,19 @@ Course project of ME337 Advanced Actuation for Robots at SUSTech.
 - 3-axis platform
 - Industrial Personal Computer
 - EtherCat communication
+- Soft acuator and gripper
 
 <a href="images/xyz_demo.mp4">Video</a>
-
 
 <img src="images/xyz_render.png" width="400">
 
 <img src="images/xyz_final.jpg" width="400">
+
+## Soft Acuator and Gripper
+
+<img src="images/finger_model_render.png" width="150">
+<img src="images/gripper_model_render.png" width="250">
+
 
 ## Trapezoidal Speed Planner
 
