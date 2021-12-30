@@ -31,6 +31,8 @@ Course project of ME337 Advanced Actuation for Robots at SUSTech.
 - Trapezoidal to triangular velocity profile
 - Time synchronization for 3-axis platform
 
+<img src="images/T_planner_test.png" width=500>
+
 ## Conventions
 
 ```
@@ -40,6 +42,7 @@ _________
 |   |   |
 |_(0,0)_|
 | 1 | 2 |
+|   5   |
 | 3 | 4 |
 ---------
 x ^
@@ -54,6 +57,7 @@ x ^
 | 1, 2, 3, 4 | Move `XY` to predefined grid points  | Pass |
 | C          | Lift gripper to initial `Z` position | Pass |
 | F          | Drop down gripper in `Z`             | Pass |
+| G          | Lift up gripper in `Z`               | Pass |
 | E          | Pick and place all in one            | Pass |
 | R          | Return gripper to zero `XYZ` position| Pass |
 
@@ -62,7 +66,7 @@ x ^
 c               # lift Z to initial pos and record this XYZ pos as (0,0)
 1 / 2 / 3 / 4   # move gripper to predefined point
 w / a / s / d   # fine tune XY position
-f               # drop Z
+f/g             # drop or lift Z
 e               # pick and place
 r               # return to (0,0)
 ```

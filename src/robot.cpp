@@ -1,4 +1,4 @@
-#include <algorithm>
+﻿#include <algorithm>
 #include <array>
 #include <stdlib.h>
 #include <string>
@@ -14,7 +14,7 @@ using namespace aris::plan;
 const double PI = aris::PI;
 
 const double T_A = 80;      // t planner acc
-const double T_V = 25;     // t planner vel
+const double T_V = 30;     // t planner vel
 const double C_A = 1;       // command acc
 const double C_V = 1;       // command vel
 const double M_A = 5;       // move acc
@@ -29,7 +29,7 @@ const double POINT_2[2] = {  -30,  160};
 const double POINT_3[2] = { -180, -160};
 const double POINT_4[2] = { -180,  160};
 const double POINT_5[2] = { -110, 0};
-const double POINT_END[2] = {220, 0};
+const double POINT_END[2] = {210, 0};
 
 const int X = 0; // X motor index
 const int Y = 2; // Y motor index
@@ -126,7 +126,6 @@ auto ReturnZ::executeRT()->int //进入实时线程
         angle = begin_angle[1] + t_plan.getYCurve(count());
         controller()->motionPool()[Y].setTargetPos(angle);
     }else{
-        //! update here
         seg_time = t_plan.getPlanTime(xyz_pt2);
         totaltime = seg_time + t_plan.getPlanTime(xyz_pt1);
 
@@ -486,21 +485,21 @@ auto Pt5::executeRT()->int //进入实时线程
 }
 auto Pt5::collectNrt()->void {}
 //* UPZ ////////////////////////////////////////
-UpZ::UpZ(const std::string &name) //构造函数
+LiftZ::LiftZ(const std::string &name) //构造函数
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"g\">"
         "	<Param name=\"len\" default=\"10\" abbreviation=\"n\"/>"
         "</Command>");
 }
-auto UpZ::prepareNrt()->void
+auto LiftZ::prepareNrt()->void
 {
     len = doubleParam("len");
     for(auto &m:motorOptions()) 
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto UpZ::executeRT()->int //进入实时线程
+auto LiftZ::executeRT()->int //进入实时线程
 {
     static double begin_angle;
     double xyz_pos[3] = {};
@@ -523,7 +522,7 @@ auto UpZ::executeRT()->int //进入实时线程
 
     return totaltime - count();
 }
-auto UpZ::collectNrt()->void {}
+auto LiftZ::collectNrt()->void {}
 
 //* DROPZ ////////////////////////////////////////
 DropZ::DropZ(const std::string &name) //构造函数
@@ -550,7 +549,8 @@ auto DropZ::executeRT()->int //进入实时线程
     if(count()==1){
         begin_angle = controller()->motionPool()[Z].actualPos();
     }
-
+    // ! Warning: a position limitation should be added.
+    mout() << "[Warning] Lowest position limitation should be added.\n";
     xyz_pos[2] = - Z_DROP/36.0*PI;
     TPlanner t_plan(T_A, T_V, xyz_pos);
     totaltime = t_plan.getPlanTime();
@@ -1015,7 +1015,7 @@ auto createPlanMotor()->std::unique_ptr<aris::plan::PlanRoot>
     plan_root->planPool().add<MoveD>();
     plan_root->planPool().add<MoveA>();
     plan_root->planPool().add<ReturnZ>();
-    plan_root->planPool().add<UpZ>();
+    plan_root->planPool().add<LiftZ>();
     plan_root->planPool().add<DropZ>();
     plan_root->planPool().add<ZeroZ>();
     plan_root->planPool().add<Pt1>();

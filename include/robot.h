@@ -111,14 +111,14 @@ class ZeroZ : public aris::core::CloneObject<ZeroZ, aris::plan::Plan>
     double len;
 };
 
-class UpZ : public aris::core::CloneObject<UpZ, aris::plan::Plan>
+class LiftZ : public aris::core::CloneObject<LiftZ, aris::plan::Plan>
 {
   public:
     auto virtual prepareNrt() -> void;
     auto virtual executeRT() -> int;
     auto virtual collectNrt() -> void;
 
-    explicit UpZ(const std::string &name = "up_z");
+    explicit LiftZ(const std::string &name = "up_z");
     
   private:
     double len;
