@@ -19,10 +19,10 @@ Course project of ME337 Advanced Actuation for Robots at SUSTech.
 <img src="images/xyz_final.jpg" width="400">
 
 ## Soft Acuator and Gripper
-
+<p float="left">
 <img src="images/finger_model_render.png" width="150">
-<img src="images/gripper_model_render.png" width="300">
-
+<img src="images/gripper_model_render.png" width="350">
+</p>
 
 ## Trapezoidal Speed Planner
 
