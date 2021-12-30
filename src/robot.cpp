@@ -54,6 +54,7 @@ Example Command Flow:
     c           // lift Z to initial pos and record this XYZ pos as (0,0)
     1/2/3/4     // move gripper to predefined point
     f           // drop Z
+    g           // up Z if not success
     e           // pick and place
     r           // return to (0,0)
 
@@ -484,6 +485,45 @@ auto Pt5::executeRT()->int //进入实时线程
     return totaltime - count();
 }
 auto Pt5::collectNrt()->void {}
+//* UPZ ////////////////////////////////////////
+UpZ::UpZ(const std::string &name) //构造函数
+{
+    aris::core::fromXmlString(command(),
+       "<Command name=\"g\">"
+        "	<Param name=\"len\" default=\"10\" abbreviation=\"n\"/>"
+        "</Command>");
+}
+auto UpZ::prepareNrt()->void
+{
+    len = doubleParam("len");
+    for(auto &m:motorOptions()) 
+        m = aris::plan::Plan::NOT_CHECK_ENABLE |
+            aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
+}
+auto UpZ::executeRT()->int //进入实时线程
+{
+    static double begin_angle;
+    double xyz_pos[3] = {};
+    long totaltime;
+    double angle;
+
+    if(count()==1){
+        begin_angle = controller()->motionPool()[Z].actualPos();
+    }
+
+    xyz_pos[2] = + Z_DROP/36.0*PI;
+    TPlanner t_plan(T_A, T_V, xyz_pos);
+    totaltime = t_plan.getPlanTime();
+
+//    TCurve s1(C_A, C_V); //s1(a,v)
+//    s1.getCurveParam(); // 计算曲线参数
+    angle = begin_angle + t_plan.getZCurve(count()); // 返回count时刻的角度
+
+    controller()->motionPool()[Z].setTargetPos(angle);
+
+    return totaltime - count();
+}
+auto UpZ::collectNrt()->void {}
 
 //* DROPZ ////////////////////////////////////////
 DropZ::DropZ(const std::string &name) //构造函数
@@ -975,6 +1015,7 @@ auto createPlanMotor()->std::unique_ptr<aris::plan::PlanRoot>
     plan_root->planPool().add<MoveD>();
     plan_root->planPool().add<MoveA>();
     plan_root->planPool().add<ReturnZ>();
+    plan_root->planPool().add<UpZ>();
     plan_root->planPool().add<DropZ>();
     plan_root->planPool().add<ZeroZ>();
     plan_root->planPool().add<Pt1>();
