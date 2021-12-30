@@ -51,15 +51,15 @@ x ^
 
 ## Commands
 
-| Key        | Description                          | Test |
-|:----------:|:-------------------------------------|:----:|
-| W, A, S, D | Move a small distance in `XY`        | Pass |
-| 1, 2, 3, 4 | Move `XY` to predefined grid points  | Pass |
-| C          | Lift gripper to initial `Z` position | Pass |
-| F          | Drop down gripper in `Z`             | Pass |
-| G          | Lift up gripper in `Z`               | Pass |
-| E          | Pick and place all in one            | Pass |
-| R          | Return gripper to zero `XYZ` position| Pass |
+| Key        | Description                          |
+|:----------:|:-------------------------------------|
+| W, A, S, D | Move a small distance in `XY`        |
+| 1, 2, 3, 4 | Move `XY` to predefined grid points  |
+| C          | Lift gripper to initial `Z` position |
+| F          | Drop down gripper in `Z`             |
+| G          | Lift up gripper in `Z`               |
+| E          | Pick and place all in one            |
+| R          | Return gripper to zero `XYZ` position|
 
 ## Example
 ```bash
