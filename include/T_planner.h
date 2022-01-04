@@ -2,22 +2,22 @@
 #define T_PLANNER_H_
 
 struct TPlanData {
-    double a_m;
-    double v_m;
-    double S;
-    double T;
-    double Ta;
-    double sign;
-    bool tri_or_trap; // true for tri, false for trap
+    double a_m;         // max acceleration
+    double v_m;         // max velocity
+    double S;           // displacement
+    double T;           // total time
+    double Ta;          // acceleration time
+    double sign;        // sign of displacement
+    bool tri_or_trap;   // true for triangle
 };
 
 class TPlanner {
-    // 适用条件：零始末速度
-
+    // conditions: zero velocity at start/end point
 public:
     TPlanner(double a_, double v_);
     TPlanner(double a_, double v_, double* Ss_);
     ~TPlanner() { }
+    
     void update(double* xyz_pos); // update new displacement
     long getPlanTime() { return T_opt==0.0 ? 1 : (long)(T_opt * 1000); }
     long getPlanTime(double* xyz_pos); 

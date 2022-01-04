@@ -44,6 +44,7 @@ _________
 |   |   |
 |_(0,0)_|
 | 1 | 2 |
+|   5   |
 | 3 | 4 |
 ---------
 x ^
@@ -52,7 +53,7 @@ x ^
 Example Command Flow:
 
     c           // lift Z to initial pos and record this XYZ pos as (0,0)
-    1/2/3/4     // move gripper to predefined point
+    1/2/3/4/5   // move gripper to predefined point
     f           // drop Z
     g           // up Z if not success
     e           // pick and place
