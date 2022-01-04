@@ -74,7 +74,7 @@ static double* get_zero_angle(){
 }
 
 //* RETURNZ ////////////////////////////////////////
-ReturnZ::ReturnZ(const std::string &name) //构造函数
+ReturnZ::ReturnZ(const std::string &name) 
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"r\">"
@@ -88,7 +88,7 @@ auto ReturnZ::prepareNrt()->void
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto ReturnZ::executeRT()->int //进入实时线程
+auto ReturnZ::executeRT()->int // enter RT thread
 {
     static double begin_angle[3];
     double angle, x_pos, y_pos, z_pos;
@@ -149,7 +149,7 @@ auto ReturnZ::executeRT()->int //进入实时线程
 auto ReturnZ::collectNrt()->void {}
 
 //* POINTEND //////////////////////////////////////
-Place::Place(const std::string &name) //构造函数
+Place::Place(const std::string &name) 
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"e\">"
@@ -163,13 +163,13 @@ auto Place::prepareNrt()->void
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto Place::executeRT()->int //进入实时线程
+auto Place::executeRT()->int // enter RT thread
 {
     static double begin_angle[3];
     double angle;
     double x_pos, y_pos;
-    double xyz_pt1[3], xyz_pt2[3], xyz_pt3[3];
-    long totaltime, seg_time1, seg_time2;
+    double xyz_pt1[3], xyz_pt2[3];
+    long totaltime, seg_time1;
 
     if(count()==1){
         begin_angle[0] = controller()->motionPool()[X].actualPos();
@@ -189,20 +189,9 @@ auto Place::executeRT()->int //进入实时线程
     xyz_pt2[1] = y_pos;
     xyz_pt2[2] = 0;
 
-    xyz_pt3[0] = 0;
-    xyz_pt3[1] = 0;
-    xyz_pt3[2] = -Z_DROP/36.0*PI;
-
     seg_time1 = t_plan.getPlanTime(xyz_pt1);
     totaltime = seg_time1 + t_plan.getPlanTime(xyz_pt2);
-//    totaltime = seg_time2 + t_plan.getPlanTime(xyz_pt3);
 
-    // TCurve s1(C_A, C_V); // s(a,v)
-    // s1.getCurveParam();
-    // mid_time = s1.getTc()*1000 + t_plan.getPlanTime();
-    // totaltime = mid_time + s1.getTc()*1000;
-
-    //! update here
     if(count() <= seg_time1){ // 上升夹爪
         t_plan.update(xyz_pt1);
         angle = begin_angle[2] + t_plan.getZCurve(count());
@@ -219,18 +208,13 @@ auto Place::executeRT()->int //进入实时线程
         angle = begin_angle[1] + t_plan.getYCurve(count()-seg_time1);
         controller()->motionPool()[Y].setTargetPos(angle);
     }
-//    else if(seg_time2 < count() && count() <= totaltime){ // 放下夹爪
-//        t_plan.update(xyz_pt3);
-//        angle = begin_angle[2] + t_plan.getZCurve(count()-seg_time2);
-//        controller()->motionPool()[Z].setTargetPos(angle);
-//    }
 
     return totaltime - count();
 }
 auto Place::collectNrt()->void {}
 
 //* ZEROZ ////////////////////////////////////////
-ZeroZ::ZeroZ(const std::string &name) //构造函数
+ZeroZ::ZeroZ(const std::string &name) 
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"c\">"
@@ -244,7 +228,7 @@ auto ZeroZ::prepareNrt()->void
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto ZeroZ::executeRT()->int //进入实时线程
+auto ZeroZ::executeRT()->int // enter RT thread
 {
     static double begin_angle[3];
     double totaltime;
@@ -277,7 +261,7 @@ auto ZeroZ::executeRT()->int //进入实时线程
 auto ZeroZ::collectNrt()->void {}
 
 //* POINT1 ////////////////////////////////////////
-Pt1::Pt1(const std::string &name) //构造函数
+Pt1::Pt1(const std::string &name) 
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"1\">"
@@ -291,7 +275,7 @@ auto Pt1::prepareNrt()->void
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto Pt1::executeRT()->int //进入实时线程
+auto Pt1::executeRT()->int // enter RT thread
 {
     static double begin_angle[2];
     double angle;
@@ -319,7 +303,7 @@ auto Pt1::executeRT()->int //进入实时线程
 auto Pt1::collectNrt()->void {}
 
 //* POINT2 ////////////////////////////////////////
-Pt2::Pt2(const std::string &name) //构造函数
+Pt2::Pt2(const std::string &name) 
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"2\">"
@@ -333,7 +317,7 @@ auto Pt2::prepareNrt()->void
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto Pt2::executeRT()->int //进入实时线程
+auto Pt2::executeRT()->int // enter RT thread
 {
     static double begin_angle[2];
     double angle;
@@ -361,7 +345,7 @@ auto Pt2::executeRT()->int //进入实时线程
 auto Pt2::collectNrt()->void {}
 
 //* POINT3 ////////////////////////////////////////
-Pt3::Pt3(const std::string &name) //构造函数
+Pt3::Pt3(const std::string &name) 
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"3\">"
@@ -375,7 +359,7 @@ auto Pt3::prepareNrt()->void
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto Pt3::executeRT()->int //进入实时线程
+auto Pt3::executeRT()->int // enter RT thread
 {
     static double begin_angle[2];
     double angle;
@@ -403,7 +387,7 @@ auto Pt3::executeRT()->int //进入实时线程
 auto Pt3::collectNrt()->void {}
 
 //* POINT4 ////////////////////////////////////////
-Pt4::Pt4(const std::string &name) //构造函数
+Pt4::Pt4(const std::string &name) 
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"4\">"
@@ -417,7 +401,7 @@ auto Pt4::prepareNrt()->void
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto Pt4::executeRT()->int //进入实时线程
+auto Pt4::executeRT()->int // enter RT thread
 {
     static double begin_angle[2];
     double angle;
@@ -445,7 +429,7 @@ auto Pt4::executeRT()->int //进入实时线程
 auto Pt4::collectNrt()->void {}
 
 //* POINT5 ////////////////////////////////////////
-Pt5::Pt5(const std::string &name) //构造函数
+Pt5::Pt5(const std::string &name) 
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"5\">"
@@ -459,7 +443,7 @@ auto Pt5::prepareNrt()->void
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto Pt5::executeRT()->int //进入实时线程
+auto Pt5::executeRT()->int // enter RT thread
 {
     static double begin_angle[2];
     double angle;
@@ -486,7 +470,7 @@ auto Pt5::executeRT()->int //进入实时线程
 }
 auto Pt5::collectNrt()->void {}
 //* UPZ ////////////////////////////////////////
-LiftZ::LiftZ(const std::string &name) //构造函数
+LiftZ::LiftZ(const std::string &name) 
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"g\">"
@@ -500,7 +484,7 @@ auto LiftZ::prepareNrt()->void
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto LiftZ::executeRT()->int //进入实时线程
+auto LiftZ::executeRT()->int // enter RT thread
 {
     static double begin_angle;
     double xyz_pos[3] = {};
@@ -526,7 +510,7 @@ auto LiftZ::executeRT()->int //进入实时线程
 auto LiftZ::collectNrt()->void {}
 
 //* DROPZ ////////////////////////////////////////
-DropZ::DropZ(const std::string &name) //构造函数
+DropZ::DropZ(const std::string &name) 
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"f\">"
@@ -540,7 +524,7 @@ auto DropZ::prepareNrt()->void
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto DropZ::executeRT()->int //进入实时线程
+auto DropZ::executeRT()->int // enter RT thread
 {
     static double begin_angle;
     double xyz_pos[3] = {};
@@ -567,7 +551,7 @@ auto DropZ::executeRT()->int //进入实时线程
 auto DropZ::collectNrt()->void {}
 
 //* MOVEW ////////////////////////////////////////
-MoveW::MoveW(const std::string &name) //构造函数
+MoveW::MoveW(const std::string &name) 
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"w\">"
@@ -581,7 +565,7 @@ auto MoveW::prepareNrt()->void
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto MoveW::executeRT()->int //进入实时线程
+auto MoveW::executeRT()->int // enter RT thread
 {
     static double begin_angle;
 
@@ -600,7 +584,7 @@ auto MoveW::executeRT()->int //进入实时线程
 auto MoveW::collectNrt()->void {}
 
 //* MOVES ////////////////////////////////////////
-MoveS::MoveS(const std::string &name) //构造函数
+MoveS::MoveS(const std::string &name) 
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"s\">"
@@ -614,7 +598,7 @@ auto MoveS::prepareNrt()->void
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto MoveS::executeRT()->int //进入实时线程
+auto MoveS::executeRT()->int // enter RT thread
 {
     static double begin_angle;
 
@@ -633,7 +617,7 @@ auto MoveS::executeRT()->int //进入实时线程
 auto MoveS::collectNrt()->void {}
 
 //* MOVED ////////////////////////////////////////
-MoveD::MoveD(const std::string &name) //构造函数
+MoveD::MoveD(const std::string &name) 
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"d\">"
@@ -647,7 +631,7 @@ auto MoveD::prepareNrt()->void
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto MoveD::executeRT()->int //进入实时线程
+auto MoveD::executeRT()->int // enter RT thread
 {
     static double begin_angle;
 
@@ -666,7 +650,7 @@ auto MoveD::executeRT()->int //进入实时线程
 auto MoveD::collectNrt()->void {}
 
 //* MOVEA ////////////////////////////////////////
-MoveA::MoveA(const std::string &name) //构造函数
+MoveA::MoveA(const std::string &name) 
 {
     aris::core::fromXmlString(command(),
        "<Command name=\"a\">"
@@ -680,7 +664,7 @@ auto MoveA::prepareNrt()->void
         m = aris::plan::Plan::NOT_CHECK_ENABLE |
             aris::plan::Plan::NOT_CHECK_POS_CONTINUOUS_SECOND_ORDER;
 }
-auto MoveA::executeRT()->int //进入实时线程
+auto MoveA::executeRT()->int // enter RT thread
 {
     static double begin_angle;
 
@@ -699,7 +683,7 @@ auto MoveA::executeRT()->int //进入实时线程
 auto MoveA::collectNrt()->void {}
 
 //* My Drive /////////////////////////////////////
-MyDrive::MyDrive(const std::string &name) //构造函数
+MyDrive::MyDrive(const std::string &name) 
 {
     //* moveit -c=1 //record cur pos as zero pos
     //* moveit -x=100 -y=50 -z=60 // move independently
