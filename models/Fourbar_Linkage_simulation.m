@@ -35,7 +35,6 @@ for i=1:size(r1,2)
     hold off
     pause(0.2);
 end
-plot()
 %Function
 function [theta1,theta2,theta3]=solve_triangle(x1,x2,x3)
  theta1=acos((x2^2+x3^2-x1^2)/(2*x2*x3));
