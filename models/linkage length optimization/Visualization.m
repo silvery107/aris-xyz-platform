@@ -20,8 +20,8 @@ for i=1:size(r1,2)
     line([-(r1(1,i)-0.6)/2,-rend(1,i)],[r1(2,i)/2,rend(2,i)],'Linewidth',5)
     rectangle('Position',[-0.5 -2.5 1 0.6+i*0.015],'FaceColor',[0.6350 0.0780 0.1840],'EdgeColor','r',...
     'LineWidth',3,'Curvature',0.4)
-    plot(rend(1,:),rend(2,:),'LineWidth',5)
-    plot(-rend(1,:),rend(2,:),'LineWidth',5)
+%     plot(rend(1,:),rend(2,:),'LineWidth',5)
+%     plot(-rend(1,:),rend(2,:),'LineWidth',5)
     hold off
     drawnow;
     F=getframe(gcf);
