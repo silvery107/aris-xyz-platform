@@ -1,0 +1,1 @@
+![image](https://github.com/silvery107/aris-xyz-platform/blob/main/models/linkage%20length%20optimization/test.gif)
