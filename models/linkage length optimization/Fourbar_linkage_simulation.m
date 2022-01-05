@@ -1,6 +1,6 @@
 clear all;clc;close all
 %Geometry Parameters
-L1=0.4;L2=0.2;x=0.4;Lend=1;
+L1=0.4;L2=0.2;x=0.5;Lend=1;
 theta_end_1=pi/3;
 %Variance Buffer
 theta3=0:0.005:sqrt(-x^2+(L1+L2)^2);
@@ -30,7 +30,8 @@ for i=1:size(r1,2)
     line([r1(1,i),r2(1,i)],[r1(2,i),r2(2,i)],'Linewidth',2);
     line([r2(1,i),x],[r2(2,i),0],'Linewidth',2);
     line([r1(1,i)/2,rend(1,i)],[r1(2,i)/2,rend(2,i)],'Linewidth',2)
-    rectangle('Position',[-0.38 -2 2 0.8])
+    rectangle('Position',[0.058 -2 2 0.1+i*0.015],'FaceColor',[0 .5 .5],'EdgeColor','b',...
+    'LineWidth',3,'Curvature',0.4)
     plot(rend(1,:),rend(2,:),'LineWidth',5)
     hold off
     drawnow;
