@@ -29,10 +29,19 @@ for i=1:size(r1,2)
     line([0,r1(1,i)],[0,r1(2,i)],'Linewidth',2);
     line([r1(1,i),r2(1,i)],[r1(2,i),r2(2,i)],'Linewidth',2);
     line([r2(1,i),x],[r2(2,i),0],'Linewidth',2);
-    line([r1(1,i)/2,rend(1,i)],[0,rend(2,i)],'Linewidth',2)
-    line([rend(1,i),r1(1,i)],[rend(2,i),r1(2,i)],'Linewidth',2)
+    line([r1(1,i)/2,rend(1,i)],[r1(2,i)/2,rend(2,i)],'Linewidth',2)
+    rectangle('Position',[-0.38 -2 2 0.8])
     plot(rend(1,:),rend(2,:),'LineWidth',5)
     hold off
+    drawnow;
+    F=getframe(gcf);
+    I=frame2im(F);
+    [I,map]=rgb2ind(I,256);
+    if i == 1
+        imwrite(I,map,'test.gif','gif','Loopcount',inf,'DelayTime',0.2);
+    else
+        imwrite(I,map,'test.gif','gif','WriteMode','append','DelayTime',0.2);
+    end
     pause(0.2);
 end
 %Function
