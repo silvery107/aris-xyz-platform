@@ -20,9 +20,10 @@ for i=1:size(theta3,2)
     theta_end=theta0+theta_end_1;
     rend(:,i)=1/2*r1(:,i)+Lend*[cos(theta_end);-sin(theta_end)];
 end
-%Visualization
-for i=1:size(r1,2)
-    scatter(rend(1,i),rend(2,i),'LineWidth',5)
+
+%% Visualization
+for i = 1:size(r1, 2)
+    scatter(rend(1, i), rend(2, i), 'LineWidth', 5)
     hold on
     xlim([-1,1]);
     ylim([-2,0]);
@@ -44,9 +45,10 @@ for i=1:size(r1,2)
     end
     pause(0.2);
 end
-%Function
-function [theta1,theta2,theta3]=solve_triangle(x1,x2,x3)
- theta1=acos((x2^2+x3^2-x1^2)/(2*x2*x3));
- theta2=acos((x1^2+x3^2-x2^2)/(2*x1*x3));
- theta3=acos((x1^2+x2^2-x3^2)/(2*x1*x2));
+
+%% Function
+function [theta1, theta2, theta3] = solve_triangle(x1, x2, x3)
+    theta1 = acos((x2^2 + x3^2 - x1^2) / (2 * x2 * x3));
+    theta2 = acos((x1^2 + x3^2 - x2^2) / (2 * x1 * x3));
+    theta3 = acos((x1^2 + x2^2 - x3^2) / (2 * x1 * x2));
 end

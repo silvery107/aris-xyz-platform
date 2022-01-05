@@ -54,7 +54,7 @@ x ^
 | Key        | Description                          |
 |:----------:|:-------------------------------------|
 | W, A, S, D | Move a small distance in `XY`        |
-| 1, 2, 3, 4 | Move `XY` to predefined grid points  |
+| 1,2,3,4,5  | Move `XY` to predefined grid points  |
 | C          | Lift gripper to initial `Z` position |
 | F          | Drop down gripper in `Z`             |
 | G          | Lift up gripper in `Z`               |
