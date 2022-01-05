@@ -1,13 +1,15 @@
 clear all;clc;close all
 %Geometry Parameters
-L1=0.4;L2=0.2;x=0.5;Lend=1;
-theta_end_1=pi/3;
+L1=0.4;L2=0.2;x=0.5;Lend=1;Lend2=Lend-0.2;
+theta_end_1=pi/6;
+theta_end_2=pi/6+pi/20;
 %Variance Buffer
 theta3=0:0.005:sqrt(-x^2+(L1+L2)^2);
 r3=[x*ones(1,size(theta3,2));-theta3];
 r2=zeros(2,size(theta3,2));
 r1=zeros(2,size(theta3,2));
 rend=zeros(2,size(theta3,2));
+rend2=zeros(2,size(theta3,2));
 Ls=zeros(1,size(theta3,2));
 %Simulation
 for i=1:size(theta3,2)
@@ -19,6 +21,8 @@ for i=1:size(theta3,2)
     r1(:,i)=L1*[cos(theta0);-sin(theta0)];
     theta_end=theta0+theta_end_1;
     rend(:,i)=1/2*r1(:,i)+Lend*[cos(theta_end);-sin(theta_end)];
+    theta_end=theta0+theta_end_2;
+    rend2(:,i)=1/2*r1(:,i)+Lend2*[cos(theta_end);-sin(theta_end)];
 end
 %Visualization
 Visualization;
