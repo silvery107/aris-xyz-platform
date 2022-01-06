@@ -14,16 +14,19 @@ Course project of ME337 Advanced Actuation for Robots at SUSTech.
 
 - Soft linkage gripper
 <img src=images/gripper.png width=500>
+
 - MATLAB Similation
 <img src="models/linkage length optimization/test.gif" width=250>
 
 
 ## 3-Axis Platform
+
 <a href=images/xyz_demo.mp4>Click for Video</a>
 
 - iHSS Integrated stepper servo motors
 - Industrial personal computer
 - EtherCat communication
+- 
 <p float="left">
 <img src=images/xyz_render.png width=200>
 <!-- <img src=images/finger_model_render.png width=200>
