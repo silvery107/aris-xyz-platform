@@ -4,36 +4,59 @@
 
 Course project of ME337 Advanced Actuation for Robots at SUSTech.
 
-## Hardware
+## Soft Acuator & Gripper
+<!-- <p float="left">
+<img src=images/finger_model_render.png width=200>
+<img src=images/gripper_model_render.png width=300>
+</p> -->
+- Soft pneumatic linear actuator
+<img src=images/acuator.png width=500>
 
-- Step motors
-- 3-axis platform
-- Industrial Personal Computer
+- Soft linkage gripper
+<img src=images/gripper.png width=500>
+- MATLAB Similation
+<img src="models/linkage length optimization/test.gif" width=250>
+
+
+## 3-Axis Platform
+<a href=images/xyz_demo.mp4>Click for Video</a>
+
+- iHSS Integrated stepper servo motors
+- Industrial personal computer
 - EtherCat communication
-- Soft acuator and gripper
-
-<a href="images/xyz_demo.mp4">Video</a>
-
-<img src="images/xyz_render.png" width="400">
-
-<img src="images/xyz_final.jpg" width="400">
-
-## Soft Acuator and Gripper
 <p float="left">
-<img src="images/finger_model_render.png" width="150">
-<img src="images/gripper_model_render.png" width="350">
+<img src=images/xyz_render.png width=200>
+<!-- <img src=images/finger_model_render.png width=200>
+<img src=images/gripper_model_render.png width=300> -->
+<img src=images/xyz_final.jpg width=300>
 </p>
 
+
+
 ## Trapezoidal Speed Planner
+### Features
+- Large distance, long time and high speed planning
+- Optimal time and given time trapezoidal planning
+- Adaptive trapezoidal to triangular velocity profile planning
+- Time synchronization for 3-axis
+### Simulation
+- `<test/T_planner_plot.py>`
 
-- Optimal time trapezoidal planning
-- Given time trapezoidal planning
-- Trapezoidal to triangular velocity profile
-- Time synchronization for 3-axis platform
+<img src=images/T_planner_test.png width=500>
 
-<img src="images/T_planner_test.png" width=500>
+## Commands
 
-## Conventions
+| Key        | Description                          |
+|:----------:|:-------------------------------------|
+| W, A, S, D | Move a small distance in `XY`        |
+| 1,2,3,4,5  | Move `XY` to predefined grid points  |
+| C          | Lift gripper to initial `Z` position |
+| F          | Drop down gripper in `Z`             |
+| G          | Lift up gripper in `Z`               |
+| E          | Pick and place all in one            |
+| R          | Return gripper to zero `XYZ` position|
+
+### Conventions
 
 ```
 _________
@@ -49,19 +72,7 @@ x ^
   |__> y
 ```
 
-## Commands
-
-| Key        | Description                          |
-|:----------:|:-------------------------------------|
-| W, A, S, D | Move a small distance in `XY`        |
-| 1,2,3,4,5  | Move `XY` to predefined grid points  |
-| C          | Lift gripper to initial `Z` position |
-| F          | Drop down gripper in `Z`             |
-| G          | Lift up gripper in `Z`               |
-| E          | Pick and place all in one            |
-| R          | Return gripper to zero `XYZ` position|
-
-## Example
+### Example
 ```bash
 c               # lift Z to initial pos and record this XYZ pos as (0,0)
 1 / 2 / 3 / 4   # move gripper to predefined point
@@ -75,3 +86,4 @@ r               # return to (0,0)
 
 - [Aris 1.5.0](https://github.com/py0330/aris)
 - EtherCat
+- Real-time operating system (RTOS)
