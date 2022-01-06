@@ -26,7 +26,7 @@ Course project of ME337 Advanced Actuation for Robots at SUSTech.
 - iHSS Integrated stepper servo motors
 - Industrial personal computer
 - EtherCat communication
-- 
+
 <p float="left">
 <img src=images/xyz_render.png width=200>
 <!-- <img src=images/finger_model_render.png width=200>
