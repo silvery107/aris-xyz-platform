@@ -10,13 +10,13 @@ Course project of ME337 Advanced Actuation for Robots at SUSTech.
 <img src=images/gripper_model_render.png width=300>
 </p> -->
 - Soft pneumatic linear actuator
-<img src=images/acuator.png width=500>
+<img src=images/acuator.png width=400>
 
 - Soft linkage gripper
-<img src=images/gripper.png width=500>
+<img src=images/gripper.png width=400>
 
 - MATLAB Similation
-<img src="models/linkage_length_optimization/test.gif" width=250>
+<img src="models/linkage_length_optimization/test.gif" width=200>
 
 
 ## 3-Axis Platform
