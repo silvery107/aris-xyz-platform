@@ -16,7 +16,7 @@ Course project of ME337 Advanced Actuation for Robots at SUSTech.
 <img src=images/gripper.png width=500>
 
 - MATLAB Similation
-<img src="models/linkage length optimization/test.gif" width=250>
+<img src="models/linkage_length_optimization/test.gif" width=250>
 
 
 ## 3-Axis Platform
