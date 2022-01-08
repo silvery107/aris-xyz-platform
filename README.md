@@ -4,7 +4,7 @@
 
 Course project of ME337 Advanced Actuation for Robots at SUSTech.
 
-## Soft Acuator & Gripper
+## Soft Acutator & Gripper
 <!-- <p float="left">
 <img src=images/finger_model_render.png width=200>
 <img src=images/gripper_model_render.png width=300>
