@@ -21,7 +21,7 @@ Course project of ME337 Advanced Actuation for Robots at SUSTech.
 
 ## 3-Axis Platform
 
-<a href=images/xyz_demo.mp4>Click for Video</a>
+https://user-images.githubusercontent.com/44640904/157364136-9e3fa75b-e46b-4bdc-a909-37e39be5fc04.mp4
 
 - iHSS Integrated stepper servo motors
 - Industrial personal computer
@@ -46,6 +46,9 @@ Course project of ME337 Advanced Actuation for Robots at SUSTech.
 - `<test/T_planner_plot.py>`
 
 <img src=images/T_planner_test.png width=500>
+
+
+
 
 ## Commands
 
